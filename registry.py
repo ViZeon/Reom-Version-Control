@@ -1,4 +1,4 @@
-from .funcs import (
+from .operators import (
     REOM_VC_OT_startup,
     REOM_VC_OT_setup_lib_file,
     REOM_VC_OT_save,

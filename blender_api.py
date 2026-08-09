@@ -69,6 +69,13 @@ def asset_set_catalog(obj, catalog_id):
     if obj.asset_data:
         obj.asset_data.catalog_id = catalog_id
 
-# === FILE PATH ===
+# === DATA LIBRARIES ===
+def data_libraries_write(filepath, blocks, fake_user=True):
+    bpy.data.libraries.write(filepath, blocks, fake_user=fake_user)
+
+# === FILE OPERATIONS ===
+def file_save_as(filepath):
+    bpy.ops.wm.save_as_mainfile(filepath=filepath, copy=True)
+
 def path_abspath(path):
     return bpy.path.abspath(path)
