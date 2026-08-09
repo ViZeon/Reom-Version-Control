@@ -1,10 +1,10 @@
+import sys
 import bpy
 from .registry import classes
 from .variables import FIRST_RUN_DELAY
-from .variables_ui import SETTINGS_BL_IDNAME
+from .variables_ui import STARTUP_BL_IDNAME
 
 def find_view3d_area(context):
-    """Pure function. Returns (window, area) or (None, None)."""
     for window in context.window_manager.windows:
         for area in window.screen.areas:
             if area.type == 'VIEW_3D':
@@ -12,7 +12,6 @@ def find_view3d_area(context):
     return (None, None)
 
 def _invoke_operator(bl_idname):
-    """Takes 'my.settings', calls bpy.ops.my.settings('INVOKE_DEFAULT')."""
     parts = bl_idname.split('.')
     op = bpy.ops
     for part in parts:
@@ -23,14 +22,19 @@ def addon_register():
     for cls in classes:
         bpy.utils.register_class(cls)
     
-    def _first_run():
-        window, area = find_view3d_area(bpy.context)
-        if window and area:
-            with bpy.context.temp_override(window=window, area=area):
-                _invoke_operator(SETTINGS_BL_IDNAME)
-        return None
+    mod = sys.modules.get(__package__)
+    auto_enabled = mod and getattr(mod, '_AUTO_ENABLED_BY_REOM_EXT', False)
     
-    bpy.app.timers.register(_first_run, first_interval=FIRST_RUN_DELAY)
+    if auto_enabled:
+        mod._AUTO_ENABLED_BY_REOM_EXT = False
+    else:
+        def _startup():
+            window, area = find_view3d_area(bpy.context)
+            if window and area:
+                with bpy.context.temp_override(window=window, area=area):
+                    _invoke_operator(STARTUP_BL_IDNAME)
+            return None
+        bpy.app.timers.register(_startup, first_interval=FIRST_RUN_DELAY)
 
 def addon_unregister():
     for cls in reversed(classes):

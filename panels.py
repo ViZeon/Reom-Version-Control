@@ -1,10 +1,14 @@
 import bpy
-from .variables_ui import (
-    PANEL_LABEL, PANEL_ID, PANEL_CATEGORY,
-    THING_BL_IDNAME, POPUP_BL_IDNAME, CONFIRM_BL_IDNAME, SETTINGS_BL_IDNAME,
-)
+from .variables_ui import PANEL_LABEL, PANEL_ID, PANEL_CATEGORY
 
-class MY_PT_thing(bpy.types.Panel):
+class ReomVCPreferences(bpy.types.AddonPreferences):
+    bl_idname = __package__
+    lib_path: bpy.props.StringProperty(name="Library Path", subtype='DIR_PATH')
+    
+    def draw(self, context):
+        self.layout.prop(self, "lib_path")
+
+class REOM_VC_PT_main(bpy.types.Panel):
     bl_label = PANEL_LABEL
     bl_idname = PANEL_ID
     bl_space_type = 'VIEW_3D'
@@ -12,7 +16,4 @@ class MY_PT_thing(bpy.types.Panel):
     bl_category = PANEL_CATEGORY
     
     def draw(self, context):
-        self.layout.operator(THING_BL_IDNAME)
-        self.layout.operator(POPUP_BL_IDNAME)
-        self.layout.operator(CONFIRM_BL_IDNAME)
-        self.layout.operator(SETTINGS_BL_IDNAME)
+        self.layout.label(text="Reom Version Control")

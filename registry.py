@@ -1,19 +1,8 @@
-from .testing import (
-    MY_OT_thing,
-    MY_OT_notify,
-    MY_MT_popup,
-    MY_OT_popup,
-    MY_OT_confirm,
-    MY_OT_settings,
-)
-from .panels import MY_PT_thing
+from .operators import REOM_VC_OT_startup
+from .panels import ReomVCPreferences, REOM_VC_PT_main
 
 classes = (
-    MY_OT_thing,
-    MY_OT_notify,
-    MY_MT_popup,
-    MY_OT_popup,
-    MY_OT_confirm,
-    MY_OT_settings,
-    MY_PT_thing,
+    ReomVCPreferences,
+    REOM_VC_OT_startup,
+    REOM_VC_PT_main,
 )
