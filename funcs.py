@@ -1,7 +1,7 @@
 import sys
 import bpy
 from .registry import classes
-from .variables import FIRST_RUN_DELAY
+from .variables import FIRST_RUN_DELAY, AUTO_ENABLE_FLAG
 from .variables_ui import STARTUP_BL_IDNAME
 
 def find_view3d_area(context):
@@ -23,10 +23,10 @@ def addon_register():
         bpy.utils.register_class(cls)
     
     mod = sys.modules.get(__package__)
-    auto_enabled = mod and getattr(mod, '_AUTO_ENABLED_BY_REOM_EXT', False)
+    auto_enabled = mod and getattr(mod, AUTO_ENABLE_FLAG, False)
     
     if auto_enabled:
-        mod._AUTO_ENABLED_BY_REOM_EXT = False
+        setattr(mod, AUTO_ENABLE_FLAG, False)
     else:
         def _startup():
             window, area = find_view3d_area(bpy.context)
