@@ -5,10 +5,11 @@ bl_info = {
     "category": "Generic",
 }
 
-from .funcs import addon_register, addon_unregister
+from . import funcs
+from . import registry
 
 def register():
-    addon_register()
+    funcs.addon_register(registry.classes)
 
 def unregister():
-    addon_unregister()
+    funcs.addon_unregister(registry.classes)
