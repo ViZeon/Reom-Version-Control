@@ -1,41 +1,49 @@
 import bpy
+from .variables import DEFAULT_URL, DEFAULT_AUTO_UPDATE, DEFAULT_VERSION, MIN_VERSION
+from .variables_ui import (
+    THING_BL_IDNAME, THING_LABEL,
+    NOTIFY_BL_IDNAME, NOTIFY_LABEL,
+    POPUP_MENU_BL_IDNAME, POPUP_MENU_LABEL, POPUP_MESSAGE,
+    POPUP_BL_IDNAME, POPUP_LABEL,
+    CONFIRM_BL_IDNAME, CONFIRM_LABEL,
+    SETTINGS_BL_IDNAME, SETTINGS_LABEL,
+)
 
 class MY_OT_thing(bpy.types.Operator):
-    bl_idname = "my.thing"
-    bl_label = "Do Thing"
+    bl_idname = THING_BL_IDNAME
+    bl_label = THING_LABEL
     
     def execute(self, context):
         print("done")
         return {'FINISHED'}
 
 class MY_OT_notify(bpy.types.Operator):
-    bl_idname = "my.notify"
-    bl_label = "Notify"
+    bl_idname = NOTIFY_BL_IDNAME
+    bl_label = NOTIFY_LABEL
 
     def execute(self, context):
         self.report({'INFO'}, "Asset library downloaded!")
         return {'FINISHED'}
 
 class MY_MT_popup(bpy.types.Menu):
-    bl_idname = "my.popup_menu"
-    bl_label = "Confirm Download"
+    bl_idname = POPUP_MENU_BL_IDNAME
+    bl_label = POPUP_MENU_LABEL
     
     def draw(self, context):
-        self.layout.label(text="Download 50MB asset library?")
-        self.layout.operator("my.thing")
+        self.layout.label(text=POPUP_MESSAGE)
+        self.layout.operator(THING_BL_IDNAME)
 
 class MY_OT_popup(bpy.types.Operator):
-    bl_idname = "my.popup"
-    bl_label = "Show Popup"
+    bl_idname = POPUP_BL_IDNAME
+    bl_label = POPUP_LABEL
     
     def execute(self, context):
-        bpy.ops.wm.call_menu(name="my.popup_menu")
+        bpy.ops.wm.call_menu(name=POPUP_MENU_BL_IDNAME)
         return {'FINISHED'}
 
-
 class MY_OT_confirm(bpy.types.Operator):
-    bl_idname = "my.confirm"
-    bl_label = "Delete everything?"
+    bl_idname = CONFIRM_BL_IDNAME
+    bl_label = CONFIRM_LABEL
     
     def invoke(self, context, event):
         return context.window_manager.invoke_confirm(self, event)
@@ -45,13 +53,12 @@ class MY_OT_confirm(bpy.types.Operator):
         return {'FINISHED'}
 
 class MY_OT_settings(bpy.types.Operator):
-    bl_idname = "my.settings"
-    bl_label = "Download Settings"
+    bl_idname = SETTINGS_BL_IDNAME
+    bl_label = SETTINGS_LABEL
     
-    # Input fields
-    url: bpy.props.StringProperty(name="URL", default="https://github.com/...")
-    auto_update: bpy.props.BoolProperty(name="Auto-update", default=True)
-    version: bpy.props.IntProperty(name="Version", default=1, min=1)
+    url: bpy.props.StringProperty(name="URL", default=DEFAULT_URL)
+    auto_update: bpy.props.BoolProperty(name="Auto-update", default=DEFAULT_AUTO_UPDATE)
+    version: bpy.props.IntProperty(name="Version", default=DEFAULT_VERSION, min=MIN_VERSION)
     
     def draw(self, context):
         layout = self.layout
@@ -60,7 +67,6 @@ class MY_OT_settings(bpy.types.Operator):
         layout.prop(self, "version")
         
     def invoke(self, context, event):
-        # This opens the blocking dialog
         return context.window_manager.invoke_props_dialog(self, width=300)
     
     def execute(self, context):

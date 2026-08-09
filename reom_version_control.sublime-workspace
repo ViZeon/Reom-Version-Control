@@ -443,6 +443,131 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/__init__.py",
+			"settings":
+			{
+				"buffer_size": 265,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					1,
+					1,
+					"revert",
+					null,
+					"AgAAAAAAAAAAAAAAAAAAAAAAAAAPAwAAYmxfaW5mbyA9IHsKICAgICJuYW1lIjogIlJlb20gVmVyc2lvbiBDb250cm9sIiwKICAgICJ2ZXJzaW9uIjogKDEsIDAsIDApLAogICAgImJsZW5kZXIiOiAoNSwgMiwgMCksCiAgICAiY2F0ZWdvcnkiOiAiR2VuZXJpYyIsCn0KCmltcG9ydCBicHkKZnJvbSAucmVnaXN0cnkgaW1wb3J0IGNsYXNzZXMKCmRlZiByZWdpc3RlcigpOgogICAgZm9yIGNscyBpbiBjbGFzc2VzOgogICAgICAgIGJweS51dGlscy5yZWdpc3Rlcl9jbGFzcyhjbHMpCiAgICAKICAgICMgU2NoZWR1bGUgdGhlIHBvcHVwIGZvciBhZnRlciBVSSBpcyByZWFkeQogICAgYnB5LmFwcC50aW1lcnMucmVnaXN0ZXIoX2ZpcnN0X3J1biwgZmlyc3RfaW50ZXJ2YWw9MC4xKQoKZGVmIHVucmVnaXN0ZXIoKToKICAgIGZvciBjbHMgaW4gcmV2ZXJzZWQoY2xhc3Nlcyk6CiAgICAgICAgYnB5LnV0aWxzLnVucmVnaXN0ZXJfY2xhc3MoY2xzKQoKZGVmIF9maXJzdF9ydW4oKToKICAgIGZvciB3aW5kb3cgaW4gYnB5LmNvbnRleHQud2luZG93X21hbmFnZXIud2luZG93czoKICAgICAgICBmb3IgYXJlYSBpbiB3aW5kb3cuc2NyZWVuLmFyZWFzOgogICAgICAgICAgICBpZiBhcmVhLnR5cGUgPT0gJ1ZJRVdfM0QnOgogICAgICAgICAgICAgICAgd2l0aCBicHkuY29udGV4dC50ZW1wX292ZXJyaWRlKHdpbmRvdz13aW5kb3csIGFyZWE9YXJlYSk6CiAgICAgICAgICAgICAgICAgICAgYnB5Lm9wcy5teS5zZXR0aW5ncygnSU5WT0tFX0RFRkFVTFQnKQogICAgICAgICAgICAgICAgcmV0dXJuIE5vbmUKICAgIHJldHVybiBOb25lAAAAAAAAAAAwAgAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					4,
+					1,
+					"",
+					null,
+					"AQAAAAAAAAAAAAAAtAEAAAAAAAAyAgAAYmxfaW5mbyA9IHsKICAgICJuYW1lIjogIlJlb20gRXh0IiwKICAgICJ2ZXJzaW9uIjogKDEsIDAsIDApLAogICAgImJsZW5kZXIiOiAoNSwgMiwgMCksCiAgICAiY2F0ZWdvcnkiOiAiR2VuZXJpYyIsCn0KCmltcG9ydCBicHkKZnJvbSAucmVnaXN0cnkgaW1wb3J0IGNsYXNzZXMKZnJvbSAub3BlcmF0b3JzIGltcG9ydCBfY2hlY2tfdmMKClZDX01PRFVMRSA9ICJSZW9tX1ZlcnNpb25fQ29udHJvbCIgICMg4oaQIFJFUExBQ0Ugd2l0aCBhY3R1YWwgZm9sZGVyIG5hbWUKCmRlZiByZWdpc3RlcigpOgogICAgZm9yIGNscyBpbiBjbGFzc2VzOgogICAgICAgIGJweS51dGlscy5yZWdpc3Rlcl9jbGFzcyhjbHMpCiAgICAKICAgIGlmIFZDX01PRFVMRSBub3QgaW4gYnB5LmNvbnRleHQucHJlZmVyZW5jZXMuYWRkb25zOgogICAgICAgIGJweS5hcHAudGltZXJzLnJlZ2lzdGVyKF9jaGVja192YywgZmlyc3RfaW50ZXJ2YWw9MC41KQoKZGVmIHVucmVnaXN0ZXIoKToKICAgIGZvciBjbHMgaW4gcmV2ZXJzZWQoY2xhc3Nlcyk6CiAgICAgICAgYnB5LnV0aWxzLnVucmVnaXN0ZXJfY2xhc3MoY2xzKQ",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAwAgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					9,
+					1,
+					"",
+					null,
+					"AQAAAAAAAAAAAAAACQEAAAAAAAC0AQAAYmxfaW5mbyA9IHsKICAgICJuYW1lIjogIlJlb20gVmVyc2lvbiBDb250cm9sIiwKICAgICJ2ZXJzaW9uIjogKDEsIDAsIDApLAogICAgImJsZW5kZXIiOiAoNSwgMiwgMCksCiAgICAiY2F0ZWdvcnkiOiAiR2VuZXJpYyIsCn0KCmltcG9ydCBicHkKZnJvbSAucmVnaXN0cnkgaW1wb3J0IGNsYXNzZXMKZnJvbSAub3BlcmF0b3JzIGltcG9ydCBfZmlyc3RfcnVuCgpkZWYgcmVnaXN0ZXIoKToKICAgIGZvciBjbHMgaW4gY2xhc3NlczoKICAgICAgICBicHkudXRpbHMucmVnaXN0ZXJfY2xhc3MoY2xzKQogICAgYnB5LmFwcC50aW1lcnMucmVnaXN0ZXIoX2ZpcnN0X3J1biwgZmlyc3RfaW50ZXJ2YWw9MC4xKQoKZGVmIHVucmVnaXN0ZXIoKToKICAgIGZvciBjbHMgaW4gcmV2ZXJzZWQoY2xhc3Nlcyk6CiAgICAgICAgYnB5LnV0aWxzLnVucmVnaXN0ZXJfY2xhc3MoY2xzKQ",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAC0AQAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/funcs.py",
+			"settings":
+			{
+				"buffer_size": 1110,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/operators.py",
+			"settings":
+			{
+				"buffer_size": 518,
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					3,
+					1,
+					"",
+					null,
+					"AQAAAAAAAAAAAAAA3wgAAAAAAABYAwAAaW1wb3J0IGJweQoKVkNfTU9EVUxFID0gIlJlb21fVmVyc2lvbl9Db250cm9sIiAgIyDihpAgUkVQTEFDRSB3aXRoIGFjdHVhbCBmb2xkZXIgbmFtZQoKY2xhc3MgUkVPTV9PVF9lbmFibGVfdmMoYnB5LnR5cGVzLk9wZXJhdG9yKToKICAgIGJsX2lkbmFtZSA9ICJyZW9tLmVuYWJsZV92YyIKICAgIGJsX2xhYmVsID0gIlJlb20gVmVyc2lvbiBDb250cm9sIGlzIHJlcXVpcmVkLiBFbmFibGUgaXQgbm93PyIKICAgIAogICAgZGVmIGludm9rZShzZWxmLCBjb250ZXh0LCBldmVudCk6CiAgICAgICAgcmV0dXJuIGNvbnRleHQud2luZG93X21hbmFnZXIuaW52b2tlX2NvbmZpcm0oc2VsZiwgZXZlbnQpCiAgICAKICAgIGRlZiBleGVjdXRlKHNlbGYsIGNvbnRleHQpOgogICAgICAgIGJweS5vcHMucHJlZmVyZW5jZXMuYWRkb25fZW5hYmxlKG1vZHVsZT1WQ19NT0RVTEUpCiAgICAgICAgc2VsZi5yZXBvcnQoeydJTkZPJ30sICJSZW9tIFZlcnNpb24gQ29udHJvbCBlbmFibGVkIikKICAgICAgICByZXR1cm4geydGSU5JU0hFRCd9CgpkZWYgX2NoZWNrX3ZjKCk6CiAgICBmb3Igd2luZG93IGluIGJweS5jb250ZXh0LndpbmRvd19tYW5hZ2VyLndpbmRvd3M6CiAgICAgICAgZm9yIGFyZWEgaW4gd2luZG93LnNjcmVlbi5hcmVhczoKICAgICAgICAgICAgaWYgYXJlYS50eXBlID09ICdWSUVXXzNEJzoKICAgICAgICAgICAgICAgIHdpdGggYnB5LmNvbnRleHQudGVtcF9vdmVycmlkZSh3aW5kb3c9d2luZG93LCBhcmVhPWFyZWEpOgogICAgICAgICAgICAgICAgICAgIGJweS5vcHMucmVvbS5lbmFibGVfdmMoJ0lOVk9LRV9ERUZBVUxUJykKICAgICAgICAgICAgICAgIHJldHVybiBOb25lCiAgICByZXR1cm4gTm9uZQ",
+					"AQAAAAAAAAABAAAAAAAAAAAAAABWAwAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					4,
+					1,
+					"revert",
+					null,
+					"AgAAAAAAAAAAAAAAAAAAAAAAAADfCAAAaW1wb3J0IGJweQoKY2xhc3MgTVlfT1RfdGhpbmcoYnB5LnR5cGVzLk9wZXJhdG9yKToKICAgIGJsX2lkbmFtZSA9ICJteS50aGluZyIKICAgIGJsX2xhYmVsID0gIkRvIFRoaW5nIgogICAgCiAgICBkZWYgZXhlY3V0ZShzZWxmLCBjb250ZXh0KToKICAgICAgICBwcmludCgiZG9uZSIpCiAgICAgICAgcmV0dXJuIHsnRklOSVNIRUQnfQoKY2xhc3MgTVlfT1Rfbm90aWZ5KGJweS50eXBlcy5PcGVyYXRvcik6CiAgICBibF9pZG5hbWUgPSAibXkubm90aWZ5IgogICAgYmxfbGFiZWwgPSAiTm90aWZ5IgoKICAgIGRlZiBleGVjdXRlKHNlbGYsIGNvbnRleHQpOgogICAgICAgIHNlbGYucmVwb3J0KHsnSU5GTyd9LCAiQXNzZXQgbGlicmFyeSBkb3dubG9hZGVkISIpCiAgICAgICAgcmV0dXJuIHsnRklOSVNIRUQnfQoKY2xhc3MgTVlfTVRfcG9wdXAoYnB5LnR5cGVzLk1lbnUpOgogICAgYmxfaWRuYW1lID0gIm15LnBvcHVwX21lbnUiCiAgICBibF9sYWJlbCA9ICJDb25maXJtIERvd25sb2FkIgogICAgCiAgICBkZWYgZHJhdyhzZWxmLCBjb250ZXh0KToKICAgICAgICBzZWxmLmxheW91dC5sYWJlbCh0ZXh0PSJEb3dubG9hZCA1ME1CIGFzc2V0IGxpYnJhcnk/IikKICAgICAgICBzZWxmLmxheW91dC5vcGVyYXRvcigibXkudGhpbmciKQoKY2xhc3MgTVlfT1RfcG9wdXAoYnB5LnR5cGVzLk9wZXJhdG9yKToKICAgIGJsX2lkbmFtZSA9ICJteS5wb3B1cCIKICAgIGJsX2xhYmVsID0gIlNob3cgUG9wdXAiCiAgICAKICAgIGRlZiBleGVjdXRlKHNlbGYsIGNvbnRleHQpOgogICAgICAgIGJweS5vcHMud20uY2FsbF9tZW51KG5hbWU9Im15LnBvcHVwX21lbnUiKQogICAgICAgIHJldHVybiB7J0ZJTklTSEVEJ30KCmNsYXNzIE1ZX09UX2NvbmZpcm0oYnB5LnR5cGVzLk9wZXJhdG9yKToKICAgIGJsX2lkbmFtZSA9ICJteS5jb25maXJtIgogICAgYmxfbGFiZWwgPSAiRGVsZXRlIGV2ZXJ5dGhpbmc/IgogICAgCiAgICBkZWYgaW52b2tlKHNlbGYsIGNvbnRleHQsIGV2ZW50KToKICAgICAgICByZXR1cm4gY29udGV4dC53aW5kb3dfbWFuYWdlci5pbnZva2VfY29uZmlybShzZWxmLCBldmVudCkKICAgIAogICAgZGVmIGV4ZWN1dGUoc2VsZiwgY29udGV4dCk6CiAgICAgICAgcHJpbnQoIlVzZXIgY2xpY2tlZCBPSyIpCiAgICAgICAgcmV0dXJuIHsnRklOSVNIRUQnfQoKY2xhc3MgTVlfT1Rfc2V0dGluZ3MoYnB5LnR5cGVzLk9wZXJhdG9yKToKICAgIGJsX2lkbmFtZSA9ICJteS5zZXR0aW5ncyIKICAgIGJsX2xhYmVsID0gIkRvd25sb2FkIFNldHRpbmdzIgogICAgCiAgICB1cmw6IGJweS5wcm9wcy5TdHJpbmdQcm9wZXJ0eShuYW1lPSJVUkwiLCBkZWZhdWx0PSJodHRwczovL2dpdGh1Yi5jb20vLi4uIikKICAgIGF1dG9fdXBkYXRlOiBicHkucHJvcHMuQm9vbFByb3BlcnR5KG5hbWU9IkF1dG8tdXBkYXRlIiwgZGVmYXVsdD1UcnVlKQogICAgdmVyc2lvbjogYnB5LnByb3BzLkludFByb3BlcnR5KG5hbWU9IlZlcnNpb24iLCBkZWZhdWx0PTEsIG1pbj0xKQogICAgCiAgICBkZWYgZHJhdyhzZWxmLCBjb250ZXh0KToKICAgICAgICBsYXlvdXQgPSBzZWxmLmxheW91dAogICAgICAgIGxheW91dC5wcm9wKHNlbGYsICJ1cmwiKQogICAgICAgIGxheW91dC5wcm9wKHNlbGYsICJhdXRvX3VwZGF0ZSIpCiAgICAgICAgbGF5b3V0LnByb3Aoc2VsZiwgInZlcnNpb24iKQogICAgICAgIAogICAgZGVmIGludm9rZShzZWxmLCBjb250ZXh0LCBldmVudCk6CiAgICAgICAgcmV0dXJuIGNvbnRleHQud2luZG93X21hbmFnZXIuaW52b2tlX3Byb3BzX2RpYWxvZyhzZWxmLCB3aWR0aD0zMDApCiAgICAKICAgIGRlZiBleGVjdXRlKHNlbGYsIGNvbnRleHQpOgogICAgICAgIHByaW50KGYiVVJMOiB7c2VsZi51cmx9IikKICAgICAgICBwcmludChmIkF1dG86IHtzZWxmLmF1dG9fdXBkYXRlfSIpCiAgICAgICAgcmV0dXJuIHsnRklOSVNIRUQnfQoKZGVmIF9maXJzdF9ydW4oKToKICAgIGZvciB3aW5kb3cgaW4gYnB5LmNvbnRleHQud2luZG93X21hbmFnZXIud2luZG93czoKICAgICAgICBmb3IgYXJlYSBpbiB3aW5kb3cuc2NyZWVuLmFyZWFzOgogICAgICAgICAgICBpZiBhcmVhLnR5cGUgPT0gJ1ZJRVdfM0QnOgogICAgICAgICAgICAgICAgd2l0aCBicHkuY29udGV4dC50ZW1wX292ZXJyaWRlKHdpbmRvdz13aW5kb3csIGFyZWE9YXJlYSk6CiAgICAgICAgICAgICAgICAgICAgYnB5Lm9wcy5teS5zZXR0aW5ncygnSU5WT0tFX0RFRkFVTFQnKQogICAgICAgICAgICAgICAgcmV0dXJuIE5vbmUKICAgIHJldHVybiBOb25lAAAAAAAAAAAGAgAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAA3wgAAAAAAADfCAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/panels.py",
+			"settings":
+			{
+				"buffer_size": 335,
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					3,
+					1,
+					"",
+					null,
+					"AQAAAAAAAAAAAAAAiwEAAAAAAAATAQAAaW1wb3J0IGJweQoKY2xhc3MgUkVPTV9QVF9tYWluKGJweS50eXBlcy5QYW5lbCk6CiAgICBibF9sYWJlbCA9ICJSZW9tIEV4dCIKICAgIGJsX2lkbmFtZSA9ICJWSUVXM0RfUFRfcmVvbV9tYWluIgogICAgYmxfc3BhY2VfdHlwZSA9ICdWSUVXXzNEJwogICAgYmxfcmVnaW9uX3R5cGUgPSAnVUknCiAgICBibF9jYXRlZ29yeSA9ICJSZW9tIgogICAgCiAgICBkZWYgZHJhdyhzZWxmLCBjb250ZXh0KToKICAgICAgICBzZWxmLmxheW91dC5sYWJlbCh0ZXh0PSJSZW9tRXh0IFBhbmVsIik",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAATAQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					4,
+					1,
+					"revert",
+					null,
+					"AgAAAAAAAAAAAAAAAAAAAAAAAACLAQAAaW1wb3J0IGJweQoKY2xhc3MgTVlfUFRfdGhpbmcoYnB5LnR5cGVzLlBhbmVsKToKICAgIGJsX2xhYmVsID0gIk15IFBhbmVsIgogICAgYmxfaWRuYW1lID0gIlZJRVczRF9QVF9teV90aGluZyIKICAgIGJsX3NwYWNlX3R5cGUgPSAnVklFV18zRCcKICAgIGJsX3JlZ2lvbl90eXBlID0gJ1VJJwogICAgYmxfY2F0ZWdvcnkgPSAiTXlUYWIiCiAgICAKICAgIGRlZiBkcmF3KHNlbGYsIGNvbnRleHQpOgogICAgICAgIHNlbGYubGF5b3V0Lm9wZXJhdG9yKCJteS50aGluZyIpCiAgICAgICAgc2VsZi5sYXlvdXQub3BlcmF0b3IoIm15LnBvcHVwIikKICAgICAgICBzZWxmLmxheW91dC5vcGVyYXRvcigibXkuY29uZmlybSIpCiAgICAgICAgc2VsZi5sYXlvdXQub3BlcmF0b3IoIm15LnNldHRpbmdzIikAAAAAAAAAAE8BAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAiwEAAAAAAACLAQAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/registry.py",
+			"settings":
+			{
+				"buffer_size": 129,
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					3,
+					1,
+					"",
+					null,
+					"AQAAAAAAAAAAAAAAMgEAAAAAAACBAAAAZnJvbSAub3BlcmF0b3JzIGltcG9ydCBSRU9NX09UX2VuYWJsZV92Ywpmcm9tIC5wYW5lbHMgaW1wb3J0IFJFT01fUFRfbWFpbgoKY2xhc3NlcyA9ICgKICAgIFJFT01fT1RfZW5hYmxlX3ZjLAogICAgUkVPTV9QVF9tYWluLAop",
+					"AQAAAAAAAAABAAAAAAAAAAAAAACBAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					4,
+					1,
+					"revert",
+					null,
+					"AgAAAAAAAAAAAAAAAAAAAAAAAAAyAQAAZnJvbSAub3BlcmF0b3JzIGltcG9ydCAoCiAgICBNWV9PVF90aGluZywKICAgIE1ZX09UX25vdGlmeSwKICAgIE1ZX01UX3BvcHVwLAogICAgTVlfT1RfcG9wdXAsCiAgICBNWV9PVF9jb25maXJtLAogICAgTVlfT1Rfc2V0dGluZ3MsCikKZnJvbSAucGFuZWxzIGltcG9ydCBNWV9QVF90aGluZwoKY2xhc3NlcyA9ICgKICAgIE1ZX09UX3RoaW5nLAogICAgTVlfT1Rfbm90aWZ5LAogICAgTVlfTVRfcG9wdXAsCiAgICBNWV9PVF9wb3B1cCwKICAgIE1ZX09UX2NvbmZpcm0sCiAgICBNWV9PVF9zZXR0aW5ncywKICAgIE1ZX1BUX3RoaW5nLAopAAAAAAAAAACBAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAMgEAAAAAAAAyAQAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -718,6 +843,168 @@
 		{
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/__init__.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 265,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								265,
+								265
+							]
+						],
+						"settings":
+						{
+							"allow_quiet_save": true,
+							"lsp_uri": "file:///mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/__init__.py",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/funcs.py",
+					"selected": true,
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 1110,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"lsp_uri": "file:///mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/funcs.py",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/operators.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 518,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								518,
+								518
+							]
+						],
+						"settings":
+						{
+							"lsp_uri": "file:///mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/operators.py",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 466.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/panels.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 335,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								335,
+								335
+							]
+						],
+						"settings":
+						{
+							"lsp_uri": "file:///mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/panels.py",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/registry.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 129,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								129,
+								129
+							]
+						],
+						"settings":
+						{
+							"lsp_uri": "file:///mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext/registry.py",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"stack_multiselect": false,
+					"type": "text"
+				}
 			]
 		}
 	],
