@@ -1,7 +1,7 @@
 import bpy
 from .variables_ui import (
     PANEL_LABEL, PANEL_ID, PANEL_CATEGORY, PANEL_TEXT,
-    PROP_NAME_LIB_PATH, TEST_SCAN_BL_IDNAME,
+    PROP_NAME_LIB_PATH, TEST_SCAN_BL_IDNAME, SAVE_BL_IDNAME,
 )
 
 class ReomVCPreferences(bpy.types.AddonPreferences):
@@ -21,3 +21,4 @@ class REOM_VC_PT_main(bpy.types.Panel):
     def draw(self, context):
         self.layout.label(text=PANEL_TEXT)
         self.layout.operator(TEST_SCAN_BL_IDNAME)
+        self.layout.operator(SAVE_BL_IDNAME)

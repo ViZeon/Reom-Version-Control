@@ -60,3 +60,15 @@ def object_get_property(obj, key):
 
 def object_set_property(obj, key, value):
     obj[key] = value
+
+# === ASSET SYSTEM ===
+def asset_mark(obj):
+    obj.asset_mark()
+
+def asset_set_catalog(obj, catalog_id):
+    if obj.asset_data:
+        obj.asset_data.catalog_id = catalog_id
+
+# === FILE PATH ===
+def path_abspath(path):
+    return bpy.path.abspath(path)
