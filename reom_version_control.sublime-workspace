@@ -1,0 +1,842 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"op",
+				"operators"
+			],
+			[
+				"ma",
+				"math"
+			],
+			[
+				"clea",
+				"clean_path"
+			],
+			[
+				"con",
+				"context"
+			],
+			[
+				"strin",
+				"strings"
+			],
+			[
+				"lib",
+				"lib_name"
+			],
+			[
+				"s",
+				"strings"
+			],
+			[
+				"clo",
+				"clone_to_cstring(s: string, allocator := context.allocator, loc := #caller_location) -> (res: cstring, err: runtime.Allocator_Error)"
+			],
+			[
+				"libe",
+				"lib_update(lib_counter: ^int, path: string, tmp_path: string)"
+			],
+			[
+				"file",
+				"file_updated"
+			],
+			[
+				"str",
+				"string"
+			],
+			[
+				"camera",
+				"update_camera_orbit(cam: ^Camera, target: Vec3, mouse_delta: [2]f32, radius: f32, theta, phi: ^f32)"
+			],
+			[
+				"scr",
+				"g_screen_w"
+			],
+			[
+				"scene",
+				"scene_field"
+			],
+			[
+				"debu",
+				"debug_print(data: any)"
+			],
+			[
+				"sce",
+				"scene_field"
+			],
+			[
+				"mode",
+				"model_ref"
+			],
+			[
+				"met",
+				"Metadata"
+			],
+			[
+				"model",
+				"model_metadata"
+			],
+			[
+				"mea",
+				"Metadata"
+			],
+			[
+				"worl",
+				"world_field"
+			],
+			[
+				"ref",
+				"Ref"
+			],
+			[
+				"meta",
+				"Metadata"
+			],
+			[
+				"sc",
+				"scene_datapoint"
+			],
+			[
+				"print",
+				"println(args: ..any, sep := \" \", flush := true) -> int"
+			],
+			[
+				"scen",
+				"scene_field"
+			],
+			[
+				"wid",
+				"SCREEN_WIDTH"
+			],
+			[
+				"pri",
+				"println(args: ..any, sep := \" \", flush := true) -> int"
+			],
+			[
+				"ive",
+				"ivec3"
+			],
+			[
+				"v",
+				"vec3"
+			],
+			[
+				"ind",
+				"index_to_xyz"
+			],
+			[
+				"cel",
+				"cell_count"
+			],
+			[
+				"w",
+				"WORLD_BITFIELD"
+			],
+			[
+				"ce",
+				"cell_get(mf: ^data.Mipmap_Bitfield, level: int, index: int) -> bool"
+			],
+			[
+				"xy",
+				"xyz_to_cell(x_coord: i32, y_coord: i32, z_coord: i32) -> i32"
+			],
+			[
+				"b",
+				"Mipmap_Bitfield"
+			],
+			[
+				"mod",
+				"model_bitfield"
+			],
+			[
+				"cell",
+				"cell_set(mf: ^data.Mipmap_Bitfield, level: int, index: int, value: bool)"
+			],
+			[
+				"level_",
+				"level_count(mf: ^data.Mipmap_Bitfield) -> int"
+			],
+			[
+				"ve",
+				"vec3"
+			],
+			[
+				"fo",
+				"for"
+			],
+			[
+				"bou",
+				"BOUNDS"
+			],
+			[
+				"m",
+				"model"
+			],
+			[
+				"wor",
+				"WORLD_BITFIELD"
+			],
+			[
+				"data",
+				"DataPointType"
+			],
+			[
+				"buil",
+				"builder_reset(b: ^Builder)"
+			],
+			[
+				"lo",
+				"LOG_BOARD"
+			],
+			[
+				"prin",
+				"println(args: ..any, sep := \" \", flush := true) -> int"
+			],
+			[
+				"pr",
+				"println(args: ..any, sep := \" \", flush := true) -> int"
+			],
+			[
+				"fil",
+				"filepath"
+			],
+			[
+				"da",
+				"data_to_store"
+			],
+			[
+				"I",
+				"ID_curr"
+			],
+			[
+				"di",
+				"distance_dvec3(x, y: dvec3) -> f64"
+			],
+			[
+				"c",
+				"CELLS"
+			],
+			[
+				"x",
+				"x_coord"
+			],
+			[
+				"app",
+				"APP_TIME"
+			],
+			[
+				"f",
+				"FRAME_TIME"
+			],
+			[
+				"fra",
+				"FRAME_TIME"
+			],
+			[
+				"fa",
+				"FRAME_TIME"
+			],
+			[
+				"i6",
+				"i64"
+			],
+			[
+				"a",
+				"APP_TIME"
+			],
+			[
+				"time_",
+				"time_last_frame"
+			],
+			[
+				"ap",
+				"APP_TIME"
+			],
+			[
+				"d",
+				"DEBUG_TIME"
+			],
+			[
+				"ca",
+				"CACHE_PATH"
+			],
+			[
+				"ver",
+				"VERTICIES_RAW"
+			],
+			[
+				"V",
+				"Vertex"
+			],
+			[
+				"or",
+				"or_else"
+			],
+			[
+				"las",
+				"vert_last_x"
+			],
+			[
+				"siz",
+				"size_y"
+			],
+			[
+				"floor",
+				"floor_y"
+			],
+			[
+				"mo",
+				"MODEL_DATA"
+			],
+			[
+				"flo",
+				"floor_y"
+			],
+			[
+				"max",
+				"MAX_RADIUS"
+			],
+			[
+				"min",
+				"min_x"
+			],
+			[
+				"l",
+				"len"
+			],
+			[
+				"pix",
+				"PIXEL_FOV_COORDS"
+			],
+			[
+				"vertex",
+				"vertex_y"
+			],
+			[
+				"pixel",
+				"PIXEL_FOV_COORDS"
+			],
+			[
+				"sort",
+				"sort_by_axis(list: ^[]data.Vertex, xs: ^[]data.Sorted_Axis, ys: ^[]data.Sorted_Axis, zs: ^[]data.Sorted_Axis)"
+			],
+			[
+				"ra",
+				"VERTICIES_RAW"
+			],
+			[
+				"DA",
+				"data"
+			],
+			[
+				"dis_v",
+				"distance_vec3(x, y: vec3) -> f32"
+			],
+			[
+				"fal",
+				"false"
+			],
+			[
+				"tr",
+				"true"
+			],
+			[
+				"MO",
+				"model_load_realtime()"
+			],
+			[
+				"pi",
+				"pixel"
+			],
+			[
+				"im",
+				"import"
+			],
+			[
+				"ray",
+				"raylib_render_frame()"
+			],
+			[
+				"raylib_",
+				"raylib_update_functions()"
+			],
+			[
+				"fd",
+				"FDATA"
+			],
+			[
+				"range",
+				"range_z"
+			],
+			[
+				"dept",
+				"depth_range"
+			],
+			[
+				"wo",
+				"world_pos"
+			],
+			[
+				"frame",
+				"FRAME_DATA"
+			],
+			[
+				"fda",
+				"FDATA"
+			],
+			[
+				"FDa",
+				"FDATA"
+			],
+			[
+				"write",
+				"write_int(buf: []byte, i: i64, base: int) -> string"
+			],
+			[
+				"win",
+				"WindowHandle"
+			],
+			[
+				"W",
+				"WINDOW_TITLE"
+			],
+			[
+				"crea",
+				"CreateWindow(width, height: c.int, title: cstring, monitor: MonitorHandle, share: WindowHandle) -> WindowHandle"
+			],
+			[
+				"impo",
+				"imports_vendor"
+			],
+			[
+				"import",
+				"imports_vendor"
+			],
+			[
+				"Holl",
+				"HOLLOWS_API"
+			],
+			[
+				"H",
+				"HZ_PLATFORM_WINDOWS"
+			],
+			[
+				"Hol",
+				"HollowsApp"
+			],
+			[
+				"App",
+				"AppInit"
+			],
+			[
+				"Hollow",
+				"HOLLOWS_API"
+			],
+			[
+				"dll",
+				"dllimport"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"in",
+				"Package Control: Install Package"
+			],
+			[
+				"lsp",
+				"Preferences: LSP Settings"
+			],
+			[
+				"pa",
+				"Package Control: Enable Package"
+			],
+			[
+				"ls",
+				"Preferences: LSP Settings"
+			],
+			[
+				"packag",
+				"Package Control: Install Package"
+			],
+			[
+				"form",
+				"LSP: Format File"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"l",
+				"Preferences: LSP Settings"
+			],
+			[
+				"ter",
+				"Terminus: Open Default Shell in Panel"
+			],
+			[
+				"pac",
+				"Package Control: User CA bundle"
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"lsp res",
+				"LSP: Restart Server"
+			],
+			[
+				"clang",
+				"Package Control: Install Package"
+			],
+			[
+				"clang lsp",
+				"Package Control: Install Package"
+			],
+			[
+				"git",
+				"git: commit"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 92.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/mnt/data/Workshop/Blender/Characters/Reom/Code/reom_ext"
+	],
+	"file_history":
+	[
+		"/mnt/data/Workshop/Blender/Characters/Reom/Code/ReomExt/panels.py",
+		"/mnt/data/Workshop/Blender/Characters/Reom/Code/ReomExt/operators.py",
+		"/mnt/data/Workshop/Blender/Characters/Reom/Code/ReomExt/testing.py",
+		"/mnt/data/Workshop/Blender/Characters/Reom/Code/ReomExt/.gitignore",
+		"/mnt/data/Workshop/Blender/Characters/Reom/Code/ReomExt/registry.py",
+		"/mnt/data/Workshop/Blender/Characters/Reom/Code/ReomExt/__init__.py",
+		"/mnt/data/Random Seed/Odin/HotReload/src/hot_reload/watcher.odin",
+		"/mnt/data/Random Seed/Odin/HotReload/src/hot_reload/entry.odin",
+		"/mnt/data/Random Seed/Odin/HotReload/src/reloadable/reload.odin",
+		"/mnt/data/Random Seed/Odin/HotReload/src/main.odin",
+		"/mnt/data/Random Seed/Odin/HotReload/src/funcs.odin",
+		"/home/vizeon/Downloads/files(40)/entry.odin",
+		"/mnt/data/Random Seed/Odin/HotReload/src/hot_reload/platform_linux.odin",
+		"/home/vizeon/Downloads/files(40)/library.odin",
+		"/mnt/data/Random Seed/Odin/HotReload/src/watcher/platform_linux.odin",
+		"/mnt/data/Random Seed/Odin/HotReload/src/watcher/platform_windows.odin",
+		"/mnt/data/Random Seed/Odin/HotReload/src/watcher/ref",
+		"/mnt/data/Random Seed/Odin/HotReload/src/watcher/watcher.odin",
+		"/home/vizeon/Downloads/files(40)/build.odin",
+		"/home/vizeon/Downloads/files(40)/main.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/Plan/Spatial Engine/Handling arrays.md",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/preset_data_init.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/preset_core_loop.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_calcs.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_management_files.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_prepass.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_render.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/build_linux.sh",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/lua/script.lua",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_lua.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_prepass_new.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/model_load.odin",
+		"/mnt/data/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_scene.odin",
+		"/home/vizeon/Downloads/Amaryllis.fountain",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/script.lua",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/build_linux.sh",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_lua.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_prepass_new.odin",
+		"/etc/mkinitcpio.conf",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/type_model.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/data/management.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_prepass.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/type_datapoint.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/module_debug.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/metadata.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/main.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/model_load.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/core_loop.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/scene.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/list_types.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/handles.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/data_init.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/calcs.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/debug.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/query.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/prepass.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/model/format_loading.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/model/load_gltf.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/model/load_obj.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/screen_field.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/prepass",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/render.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/Plan/zed with odin.md",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/Plan/Spatial Engine/Handling arrays.md",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/type_edge.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/type_polygon.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/type_texture.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/type_vertex.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/model_load",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/arrays.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/file_management.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/render_raylib.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/prepass_new.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/model/_format_loading.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/model/_format_loading",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/type_texture",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/polygon.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_vault/type_ref.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/data_management.odin",
+		"/home/vizeon/_Lib/Compiled/Odin/Odin/core/math/linalg/glsl/linalg_glsl.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/type_field.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/arrays.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/list_types.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/handles.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/type_datapoint.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/metadata.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/type_debug.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/type_model.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/arrays_flat.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/List_Types",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/arrays_direct.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/arrays_composite.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/data_management",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/arrays_direct",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/type_vertex.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/data_editor.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/Plan/Documentation_Basic.md",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/type_ref.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/data.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/model/model_load.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/window/window.odin",
+		"/home/vizeon/Downloads/render_raylib.odin",
+		"/home/vizeon/Downloads/render_raylib(1).odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/_data/type_debug",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/Plan/Documentation_Basic",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/data/type_field.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/data/type_datapoint.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/data/type_ref.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/data/data.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/data/data_editor.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/model_load_v1.odin",
+		"/home/vizeon/Software/TheHollowsEngine/Backup/Odin/04/HollowsGraphicsEngine/src/core/testing/calcs.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/model_load_new.odin",
+		"/home/vizeon/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/modules/render/render.odin",
+		"/C/Users/Vi-Zeon/Downloads/Animations.txt",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/image_debug_output/logs/11",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/odin_sublime.sublime-project",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/debug/text/672",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/ols.json",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/src/core/testing/calcs.odin",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/debug/text/671",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/assets/kenny_blaster/blaster-e.glb",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/build_windows.bat",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/image_debug_output/logs/10",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/.gitattributes",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/.gitignore",
+		"/H/Software/TheHollowsEngine/HollowsGraphicsEngine/src/.gitattributes",
+		"/J/_Installs/Software/Odin/core/time/time.odin"
+	],
+	"find":
+	{
+		"height": 47.0
+	},
+	"find_in_files":
+	{
+		"height": 179.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 47.0
+	},
+	"input":
+	{
+		"height": 58.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.LSP Log Panel":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"output.diagnostics":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"output.exec":
+	{
+		"height": 332.0,
+		"history":
+		[
+		]
+	},
+	"output.find_results":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"output.mdpopups":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"pinned_build_system": "Odin - Linux",
+	"project": "reom_version_control.sublime-project",
+	"replace":
+	{
+		"height": 90.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"/mnt/data/Random Seed/Odin/HotReload/odin_sublime.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+		"lsp_show_inlay_hints": false
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 309.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
