@@ -8,3 +8,6 @@ STARTUP_LABEL = "Reom Version Control"
 STARTUP_TEXT = "Version Control is ready."
 
 PROP_NAME_LIB_PATH = "Library Path"
+
+TEST_SCAN_BL_IDNAME = "reom_vc.test_scan"
+TEST_SCAN_LABEL = "Test Version Scan"
