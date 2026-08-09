@@ -8,7 +8,7 @@ THING_LABEL = "Do Thing"
 NOTIFY_BL_IDNAME = "my.notify"
 NOTIFY_LABEL = "Notify"
 
-POPUP_MENU_BL_IDNAME = "my.popup_menu"
+POPUP_MENU_BL_IDNAME = "MY_MT_popup"
 POPUP_MENU_LABEL = "Confirm Download"
 POPUP_MESSAGE = "Download 50MB asset library?"
 
