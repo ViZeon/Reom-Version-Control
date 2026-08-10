@@ -20,7 +20,7 @@ COPY_MAIN = True
 STARTUP_DELAY = 0.1
 REFRESH_DELAY = 0.2
 AUTO_ENABLED = "_AUTO_ENABLED"
-INITIAL_VERSION = (1, 0, 0)
+INITIAL_VERSION = (0, 0, 0)
 NAMESPACE = uuid.NAMESPACE_DNS
 LIST_JOIN = ", "
 TEMP_SUFFIX = "_reom_temp"
@@ -42,9 +42,9 @@ MODE_SUB = "per_sub"
 MODE_RELEASE = "per_release"
 
 ITEM_STORAGE_MODES = [
-    (MODE_VER, "Per-Current", "Save a new file for every save (e.g., 1_0_0.blend)"),
-    (MODE_SUB, "Per-Sub", "Pack all saves of a sub-version into one file (e.g., 1_0.versions.blend)"),
-    (MODE_RELEASE, "Per-Release", "Pack all saves of a release into one file (e.g., 1.versions.blend)")
+    (MODE_VER, "Per-Current", "Save a new file for every save (e.g., 0_0_0.blend)"),
+    (MODE_SUB, "Per-Sub", "Pack all saves of a sub-version into one file (e.g., 0_0.versions.blend)"),
+    (MODE_RELEASE, "Per-Release", "Pack all saves of a release into one file (e.g., 0.versions.blend)")
 ]
 
 # === WRITE MODES ===

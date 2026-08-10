@@ -4,7 +4,7 @@ from ..utils.logger import get_logger
 from . import state
 from .paths import get_default_lib_path, get_version_path, prepare_path, scan_versions
 from .gateway import safe_write
-from .sync import validate_lib_file, write_obj, pack_version, sync_file_to_lib, sync_packed_to_lib
+from .sync import validate_lib_file, write_obj, pack_version, sync_to_lib
 from .math import str_ver, bump_ver, bump_step, bump_release
 
 log = get_logger()
@@ -65,10 +65,8 @@ def set_main_version(obj, v_str, root=None):
     
     validate_lib_file(lib, name)
     
-    if mode == data.MODE_VER:
-        sync_file_to_lib(ver_path, lib, name, state.get_cat(obj))
-    else:
-        sync_packed_to_lib(ver_path, lib, name, v_str, state.get_cat(obj))
+    is_packed = (mode != data.MODE_VER)
+    sync_to_lib(ver_path, lib, name, v_str, state.get_cat(obj), is_packed)
         
     wrapper.refresh_assets()
     log.info(f"Set main version for {name} to {v_str}")

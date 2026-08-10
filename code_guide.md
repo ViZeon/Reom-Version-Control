@@ -1,113 +1,83 @@
+Here is the updated Code Guide. It reflects the fully modularized folder structure, the new identity system, the safe write gateway, and the storage modes. It is written for maximum lexical density—zero fluff, pure signal.
 
+---
 
-Read this, and you will know exactly where every line of code belongs.
+# Reom Addon Dev Docs
 
-### The 4 Golden Rules
+## Architecture
+
+Modular, 4-layer package architecture. Zero hardcoded data outside `data/`.
+
+| Package / File | Role | Rules |
+|------|------|-------|
+| `data/` | Constants, UI strings, enums. | No functions. No logic. |
+| `wrapper/` | 1-liner `bpy` adapters. | No logic. Just translates calls. |
+| `functions/` | Pure business logic. | No `bpy`. No hardcoded data. |
+| `ui/` | Blender Operator & Panel classes. | Calls `functions/`. Dumb UI. |
+| `utils/` | Logging and Unit Tests. | Standard Python libraries. |
+
+### `functions/` Sub-modules
+To keep files bite-sized and indexable, `functions/` is split into:
+* `lifecycle.py`: Addon register/unregister, keymaps, startup timer.
+* `state.py`: Getters/Setters for object properties (UUID, Name, Ver, Lib).
+* `math.py`: Version bumping and UI string formatting.
+* `paths.py`: Directory scanning, path building, and Storage Mode migration.
+* `gateway.py`: The universal `safe_write` function and conflict resolvers.
+* `categories.py`: Reading/writing `blender_assets.cats.txt`.
+* `sync.py`: Library validation, writing objects, packing versions, syncing to lib.
+* `actions.py`: High-level actions called by UI (e.g., `save_version`, `set_main_version`).
+
+## The 4 Golden Rules
 1. **No data in functions.** No hardcoded strings, paths, or enums.
 2. **No logic in data.** Just constants. If it has parentheses, it doesn't belong here.
-3. **No `bpy` in functions.** Blender calls live *only* in the wrapper.
-4. **No OOP outside UI.** Operators and Panels are forced OOP. Keep them dumb. They draw boxes and trigger actions.
+3. **No `bpy` in functions.** Blender calls live *only* in `wrapper/`.
+4. **No OOP outside UI.** Operators and Panels are forced OOP. Keep them dumb.
 
----
+## Identity System
+We do not rely on Blender object names (`Cube.001` happens constantly).
+* `P_NAME`: The user-chosen asset name (locked in at setup).
+* `P_UUID`: A unique ID injected into the object. Inherited by appended/duplicated objects.
+* Library files are named `{P_NAME}.blend`.
 
-### The Layers
+## Storage Modes
+Version backups are stored in `/_versions/{P_NAME}/`.
+* `MODE_VER`: Individual files per save (`Cube_1_0_0.blend`).
+* `MODE_SUB`: Packed files per sub-version (`Cube_1_0.versions.blend`).
+* `MODE_RELEASE`: Packed files per release (`Cube_1.versions.blend`).
 
-**1. `data.py` (The Dictionary)**
-* **Role:** Single source of truth. Pure data.
-* **Format:** `UPPER_SNAKE_CASE`. Grouped by domain (`# === UI ===`, `# === PROPERTIES ===`).
-* **Rule:** Prefixes make indexing instant (`OP_` for operators, `P_` for properties, `TEXT_` for UI strings).
+**Migration:** Changing modes in preferences triggers `migrate_all_versions`. It unpacks all packed files to individual files, takes a snapshot backup in `/_backup_migration/`, then repacks them according to the new mode.
 
-**2. `wrapper.py` (The Translator)**
-* **Role:** 1-liner adapters. Translates our plain Python into `bpy` calls.
-* **Format:** `snake_case`. Verbs only (`get_`, `set_`, `invoke_`).
-* **Rule:** Zero math. Zero business logic. If it needs a loop, the loop goes in `functions.py`.
+## The Safe Write Gateway
+ALL file writes MUST go through `functions.gateway.safe_write(path, file_data, mode)`.
+* `MODE_SAFE`: Appends `_1` if file exists.
+* `MODE_REPLACE`: Deletes old file, writes new.
+* `MODE_BACKUP`: Moves old file to `/_backup_{mode}/`.
+* `MODE_CUSTOM`: Pass custom resolver functions.
 
-**3. `functions.py` (The Brain)**
-* **Role:** Pure logic. Data in, data out.
-* **Format:** `snake_case`. Verbs for actions (`save_version`), nouns for queries (`scan_info`).
-* **Rule:** Never imports `bpy`. Never hardcodes a string. Calls `wrapper` for Blender access.
+## How to Add a New Operator
+1. Add `OP_NAME` and `TEXT_NAME` to `data/__init__.py`.
+2. Write the logic in `functions/actions.py` (e.g., `def do_thing(obj): ...`).
+3. Write the class in `ui/operators.py`. Call `functions.do_thing()`. Report the result.
+4. Import in `ui/registry.py`, add to `classes` tuple.
+5. Add a button in `ui/panels.py` via `l.operator(data.OP_NAME)`.
 
-**4. `ui_operators.py` & `ui_panels.py` (The Face)**
-* **Role:** Blender-forced OOP. Draws UI and captures clicks.
-* **Format:** `REOM_VC_OT_name` (Operators), `REOM_VC_PT_name` (Panels).
-* **Rule:** The UI is blind and dumb. It grabs the active object, passes it to a `functions.action()`, and reports the string it gets back. No path building, no version math, no file scanning logic.
+## Version System
+Format: `release_sub_current` (e.g., `0_0_0`). Starts at `0_0_0`.
 
-**5. `registry.py` (The Usher)**
-* **Role:** Imports UI classes and orders them for registration.
-* **Format:** Single `classes` tuple.
+| Action | Math | UI Display |
+|--------|------|------|
+| Save | current += 1 | `v0.0.1` |
+| Step | sub += 1, current = 0 | `v0.1.0` |
+| Release | release += 1, sub = 0, current = 0 | `v1.0.0` |
 
----
+**Set Main:** Extracts a specific version from the versions folder, writes it to `Cube.blend` (replacing the main asset), and re-links the object in the scene.
 
-### Naming Conventions (ELI5 & Index Friendly)
+## Edit Mode Flow
+1. **Linked (Read-Only):** Object is linked from `Cube.blend`.
+2. **Enter Edit:** Calls `make_local()`. Object is now fully editable.
+3. **Save:** Bumps version, packs backup, overwrites `Cube.blend`.
+4. **End Edit:** Saves final version, deletes local object, re-links from `Cube.blend`.
 
-Because of strict prefixes, you can type `data.OP_` or `data.TEXT_` and your IDE will show you exactly what you need.
-
-| Domain | Prefix | Example | Used By |
-|---|---|---|---|
-| Operators | `OP_` | `OP_SAVE = "reom_vc.save"` | UI, Wrapper invoke |
-| Properties| `P_` | `P_VER = "reom_vc_ver"` | Functions, Wrapper |
-| UI Text | `TEXT_` | `TEXT_MESH = "Mesh: "` | UI Panels/Operators |
-| Errors | `ERR_` | `ERR_NO_OBJ = "..."` | UI Operators |
-| Enums | `AREA_` / `REGION_`| `AREA_VIEW3D = 'VIEW_3D'` | UI Panels, Wrapper |
-
----
-
-### Workflow: How to add a new feature
-
-Let's say you want to add a "Force Save" button that bypasses version bumping.
-
-**1. `data.py` (Add the data)**
-```python
-OP_FORCE = "reom_vc.force_save"
-TEXT_FORCE = "Force Save"
-```
-
-**2. `wrapper.py` (No changes needed)**
-*We already have `write_lib` and `get_active_obj`.*
-
-**3. `functions.py` (Add the logic)**
-```python
-def force_save(obj):
-    lib = get_lib(obj)
-    if not lib: return data.ERR_NO_LIB
-    write_obj(obj, lib)
-    return f"Forced {get_name(obj)} to lib"
-```
-
-**4. `ui_operators.py` (Add the dumb button)**
-```python
-class REOM_VC_OT_force(bpy.types.Operator):
-    bl_idname = data.OP_FORCE
-    bl_label = data.TEXT_FORCE
-    def execute(self, ctx):
-        obj = wrapper.get_active_obj()
-        if not obj: return _report(self, data.ERR_NO_OBJ)
-        return _report(self, functions.force_save(obj), data.REPORT_INFO)
-```
-
-**5. `registry.py` (Register it)**
-```python
-from .ui_operators import REOM_VC_OT_force
-# Add to classes tuple
-```
-
-**6. `ui_panels.py` (Draw it)**
-```python
-l.operator(data.OP_FORCE)
-```
-
----
-
-### Documentation Rules (The "Lean & ELI5" Standard)
-
-When writing docstrings, readmes, or dev docs for this codebase, adhere strictly to these rules:
-
-1. **Maximum Lexical Density:** Zero fluff. No "This function is responsible for...". Just say what it is. `"""Save object and data blocks to a .blend file."""` 
-2. **ELI5, but Technical:** Explain the *what* and *why* in plain English, but assume the reader knows basic programming terms (adapters, pure functions, blocks). A newcomer should instantly understand the intent without reading the code.
-3. **Action-Oriented:** Start descriptions with verbs. `Save`, `Load`, `Bump`, `Sync`.
-4. **No Stating the Obvious:** Don't document that a function returns a string if the function is named `get_string`. Only document non-obvious side effects (e.g., "Deletes original objects after load").
-5. **File Headers:** Every file gets a 1-line docstring defining its architectural role and the rules it obeys.
-   * `"""Thin Blender API adapters. No logic."""` (wrapper.py)
-   * `"""Pure functions and business logic. No bpy. No hardcoded constants."""` (functions.py)
-   * `"""UI logic for Operators. No business logic."""` (ui_operators.py)
-6. **Example Formats:** When showing how to add a feature, use the raw, dense format. Show the file name, the exact snippet, and move on. No long-winded explanations between code blocks.
+## Testing & Logging
+* **Logging:** `utils/logger.py` writes to `reom_vc.log` in Blender's temp directory.
+* **Unit Tests:** `utils/tests.py` contains standard `unittest` suites for math, paths, and the safe write gateway. Run via the "Run Unit Tests" operator in the Reom VC panel.

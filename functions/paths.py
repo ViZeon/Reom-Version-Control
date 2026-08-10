@@ -104,8 +104,8 @@ def migrate_all_versions(root, new_mode):
             
             existing = set(wrapper.get_all_objs().keys())
             with wrapper.load_lib(fpath) as (df, dt):
-                obj_names = [n for n in df.objects if n.startswith(asset_name + data.VER_SEP)]
-                dt.objects = obj_names
+                # Load ALL objects from the packed file
+                dt.objects = [n for n in df.objects if n.startswith(asset_name + data.VER_SEP)]
                 
             for ob in list(wrapper.get_all_objs()):
                 if ob.name not in existing:
@@ -113,7 +113,6 @@ def migrate_all_versions(root, new_mode):
                     ind_path = os.path.join(asset_dir, f"{ob.name}{data.BLEND_EXT}")
                     blocks = {ob, ob.data} if ob.data else {ob}
                     blocks.update(wrapper.get_mats(ob))
-                    # Use REPLACE to cleanly overwrite any half-written files
                     safe_write(ind_path, blocks, data.MODE_REPLACE)
                     wrapper.remove_obj(ob)
                     
@@ -153,7 +152,8 @@ def migrate_all_versions(root, new_mode):
             
             for fpath, v_tuple in files:
                 with wrapper.load_lib(fpath) as (df, dt):
-                    dt.objects = [n for n in df.objects if n.startswith(asset_name)]
+                    # Load ALL objects from the individual file
+                    dt.objects = df.objects
                     
                 for ob in list(wrapper.get_all_objs()):
                     if ob.name not in existing:
@@ -164,13 +164,16 @@ def migrate_all_versions(root, new_mode):
                         loaded_objs.append(ob)
                         existing.add(ob.name)
                         
+            if not loaded_objs:
+                log.warning(f"No objects loaded for {packed_path}. Skipping.")
+                continue
+                        
             blocks = set()
             for ob in loaded_objs:
                 blocks.add(ob)
                 if ob.data: blocks.add(ob.data)
                 blocks.update(wrapper.get_mats(ob))
                 
-            # FIX: Use safe_write instead of wrapper.write_lib to prevent .blend1 temp files
             safe_write(packed_path, blocks, data.MODE_REPLACE)
             log.info(f"Packed {len(loaded_objs)} versions into {packed_path}")
             
