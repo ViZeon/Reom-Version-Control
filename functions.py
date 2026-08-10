@@ -20,13 +20,8 @@ def addon_unregister(classes): wrapper.unregister(classes)
 def get_name(obj):
     name = wrapper.get_prop(obj, data.P_NAME)
     if name: return name
-    
-    # Fallback: parse the library filename (e.g., "Cube.blend" -> "Cube")
     lib = get_lib(obj)
-    if lib:
-        base = os.path.basename(lib)
-        return os.path.splitext(base)[0]
-        
+    if lib: return os.path.splitext(os.path.basename(lib))[0]
     return obj.name
 
 def get_uuid(obj): return wrapper.get_prop(obj, data.P_UUID)
@@ -85,8 +80,7 @@ def get_version_path(name, v_str, root):
 def get_default_lib_path(obj):
     root = wrapper.get_prefs().lib_path
     if not root: return ""
-    name = get_name(obj) or wrapper.get_active_obj().name
-    return os.path.join(os.path.expanduser(root), f"{name}{data.BLEND_EXT}")
+    return os.path.join(os.path.expanduser(root), f"{get_name(obj)}{data.BLEND_EXT}")
 
 def prepare_path(path):
     if not path.endswith(data.BLEND_EXT): path += data.BLEND_EXT
@@ -111,7 +105,7 @@ def _resolve_safety(path, mode, *args):
             os.remove(path)
             return path
         case data.MODE_BACKUP:
-            bak_path = _get_unique_path(path + ".bak")
+            bak_path = _get_unique_path(path + data.BAK_EXT)
             os.rename(path, bak_path)
             print(data.WARN_BACKUP.format(bak_path))
             return path
@@ -140,8 +134,8 @@ def safe_write(path, file_data, mode, *args):
         
     ext = os.path.splitext(safe_path)[1].lower()
     match ext:
-        case ".blend": wrapper.write_lib(safe_path, file_data)
-        case ".txt": _write_text(safe_path, file_data)
+        case data.BLEND_EXT: wrapper.write_lib(safe_path, file_data)
+        case data.TXT_EXT: _write_text(safe_path, file_data)
         case _: raise ValueError(f"Unsupported file type for write: {ext}")
 
 # === CATEGORIES (Asset Browser Catalogs) ===
@@ -213,23 +207,17 @@ def write_obj(obj, path, name=None, cat=None, mode=data.MODE_REPLACE):
     """
     orig_name = obj.name
     orig_data_name = obj.data.name if obj.data else None
-    temp_obj = None
-    temp_data = None
+    temp_name = name + data.TEMP_SUFFIX if name else None
     
-    if name and obj.name != name:
-        # Temporarily move colliding object out of the way
-        if name in wrapper.get_all_objs():
-            temp_obj = wrapper.get_all_objs()[name]
-            temp_obj.name = name + data.TEMP_SUFFIX
+    if name:
+        # Temporarily move colliding objects/meshes out of the way
+        if temp_name and name in wrapper.get_all_objs() and wrapper.get_all_objs()[name] != obj:
+            wrapper.get_all_objs()[name].name = temp_name
+        if temp_name and obj.data and name in wrapper.get_meshes() and wrapper.get_meshes()[name] != obj.data:
+            wrapper.get_meshes()[name].name = temp_name
             
         obj.name = name
-        
-        if obj.data and obj.data.name != name:
-            meshes = wrapper.get_meshes()
-            if name in meshes:
-                temp_data = meshes[name]
-                temp_data.name = name + data.TEMP_SUFFIX
-            obj.data.name = name
+        if obj.data: obj.data.name = name
 
     if cat:
         wrapper.mark_asset(obj)
@@ -243,26 +231,19 @@ def write_obj(obj, path, name=None, cat=None, mode=data.MODE_REPLACE):
         wrapper.clear_asset(obj)
         
     # Restore original names
-    if name and obj.name != orig_name:
+    if name:
         obj.name = orig_name
         if obj.data and orig_data_name:
             obj.data.name = orig_data_name
             
-    if temp_obj:
-        temp_obj.name = name
-    if temp_data:
-        temp_data.name = name
+        if temp_name and temp_name in wrapper.get_all_objs():
+            wrapper.get_all_objs()[temp_name].name = name
+        if temp_name and temp_name in wrapper.get_meshes():
+            wrapper.get_meshes()[temp_name].name = name
 
 def sync_file_to_lib(ver_path, lib_path, name, tag=None):
     existing = set(wrapper.get_all_objs().keys())
     
-    live_obj = wrapper.get_active_obj()
-    temp_name = name + data.TEMP_SUFFIX
-    if live_obj and live_obj.name == name:
-        live_obj.name = temp_name
-        existing.remove(name)
-        existing.add(temp_name)
-        
     with wrapper.load_lib(ver_path) as (df, dt): dt.objects = df.objects
     
     for ob in wrapper.get_all_objs():
@@ -270,9 +251,6 @@ def sync_file_to_lib(ver_path, lib_path, name, tag=None):
             # write_obj handles renaming to `name` safely
             write_obj(ob, lib_path, name, tag, data.MODE_REPLACE)
             wrapper.remove_obj(ob)
-            
-    if temp_name in wrapper.get_all_objs():
-        wrapper.get_all_objs()[temp_name].name = name
 
 # === ACTIONS (Called by UI) ===
 def setup_lib(obj, name, filepath):

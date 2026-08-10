@@ -37,14 +37,8 @@ class REOM_VC_OT_setup(bpy.types.Operator):
     def invoke(self, ctx, ev):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
-        
-        if not self.asset_name:
-            existing_name = functions.get_name(obj)
-            self.asset_name = existing_name if existing_name else obj.name
-            
-        if not self.filepath:
-            self.filepath = functions.get_default_lib_path(obj)
-            
+        if not self.asset_name: self.asset_name = functions.get_name(obj)
+        if not self.filepath: self.filepath = functions.get_default_lib_path(obj)
         return ctx.window_manager.invoke_props_dialog(self, width=data.WIDTH_LARGE)
         
     def draw(self, ctx):

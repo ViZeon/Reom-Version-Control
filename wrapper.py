@@ -50,27 +50,16 @@ def is_linked(obj):
 
 def make_local(obj):
     obj.make_local()
-    if obj.data: obj.data.make_local()
-    for mat in get_mats(obj):
-        mat.make_local()
-    # Clear asset data so it becomes a pure working copy, not a packed instance
-    if obj.asset_data:
-        obj.asset_clear()
+    if obj.data: 
+        obj.data.make_local()
+        for mat in obj.data.materials: mat.make_local()
+    if obj.asset_data: obj.asset_clear()
 
 def link_obj_from_lib(lib_path, name):
-    # If it's already linked in memory, just instance it in the scene
-    if name in bpy.data.objects:
-        obj = bpy.data.objects[name]
-        if obj.library:
-            if obj.name not in bpy.context.collection.objects:
-                bpy.context.collection.objects.link(obj)
-            bpy.context.view_layer.objects.active = obj
-            obj.select_set(True)
-            return
+    if name not in bpy.data.objects:
+        with bpy.data.libraries.load(lib_path, link=True) as (df, dt):
+            dt.objects = [name] if name in df.objects else []
             
-    with bpy.data.libraries.load(lib_path, link=True) as (df, dt):
-        dt.objects = [name] if name in df.objects else []
-        
     if name in bpy.data.objects:
         obj = bpy.data.objects[name]
         if obj.name not in bpy.context.collection.objects:

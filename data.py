@@ -29,9 +29,10 @@ TEMP_SUFFIX = "_reom_temp"
 V_DIR = "_versions"
 VER_SEP = "_"
 BLEND_EXT = ".blend"
+TXT_EXT = ".txt"
+BAK_EXT = ".bak"
 CATALOG_FILE = "blender_assets.cats.txt"
 CATALOG_HEADER = "VERSION 1\n"
-SIG_BAK_EXT = ".reom_bak"
 
 # === WRITE MODES ===
 MODE_SAFE = "safe"
