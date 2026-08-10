@@ -49,5 +49,5 @@ def refresh_assets():
                 if a.type == 'ASSETS':
                     with bpy.context.temp_override(window=w, area=a):
                         bpy.ops.asset.library_refresh()
-        return None  # Unregister timer
-    bpy.app.timers.register(_refresh, first_interval=0.2)
+        return None
+    bpy.app.timers.register(_refresh, first_interval=data.REFRESH_DELAY)

@@ -1,5 +1,5 @@
 """UI logic for Operators."""
-import bpy, os
+import bpy
 from . import wrapper, functions, data
 
 def _report(op, msg, type=data.REPORT_ERROR):
@@ -36,8 +36,7 @@ class REOM_VC_OT_setup(bpy.types.Operator):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
         if not self.filepath:
-            root = wrapper.get_prefs().lib_path
-            self.filepath = os.path.join(os.path.expanduser(root), f"{functions.get_name(obj)}{data.BLEND_EXT}") if root else ""
+            self.filepath = functions.get_default_lib_path(obj)
         return ctx.window_manager.invoke_props_dialog(self, width=data.WIDTH_LARGE)
         
     def draw(self, ctx):

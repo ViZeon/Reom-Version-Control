@@ -65,6 +65,11 @@ def get_version_path(name, v_str, root):
     os.makedirs(vdir, exist_ok=True)
     return os.path.join(vdir, f"{name}{data.VER_SEP}{v_str}{data.BLEND_EXT}")
 
+def get_default_lib_path(obj):
+    root = wrapper.get_prefs().lib_path
+    if not root: return ""
+    return os.path.join(os.path.expanduser(root), f"{get_name(obj)}{data.BLEND_EXT}")
+
 def prepare_path(path):
     if not path.endswith(data.BLEND_EXT): path += data.BLEND_EXT
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -154,7 +159,7 @@ def sync_file_to_lib(ver_path, lib_path, name, tag=None):
     
     # Temporarily rename the live object to avoid naming collisions
     live_obj = wrapper.get_active_obj()
-    temp_name = name + "_reom_temp"
+    temp_name = name + data.TEMP_SUFFIX
     if live_obj and live_obj.name == name:
         live_obj.name = temp_name
         existing.remove(name)
@@ -167,8 +172,7 @@ def sync_file_to_lib(ver_path, lib_path, name, tag=None):
             ob.name = name
             if ob.data: ob.data.name = name
             
-            if os.path.exists(lib_path):
-                os.remove(lib_path)
+            if os.path.exists(lib_path): os.remove(lib_path)
             write_obj(ob, lib_path, tag)
             wrapper.remove_obj(ob)
             
