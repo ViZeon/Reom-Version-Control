@@ -1,6 +1,9 @@
 """Pure functions and business logic. No bpy."""
 import os, sys, uuid
 from . import wrapper, data
+from .logger import get_logger
+
+log = get_logger()
 
 def addon_register(classes):
     wrapper.register(classes)
@@ -49,7 +52,14 @@ def bump_ver(v): return (v[0], v[1], v[2] + 1)
 def bump_step(v): return (v[0], v[1] + 1, 0)
 def bump_release(v): return (v[0] + 1, 0, 0)
 def str_ver(v): return data.VER_SEP.join(map(str, v))
-def format_ver_ui(v): return data.UI_VER_PREFIX + data.UI_VER_SEP.join(map(str, v))
+
+def format_ver_ui(v):
+    """Formats version tuple for UI, padding to 3 digits to prevent weirdness."""
+    if not v: return ""
+    v_list = list(v)
+    while len(v_list) < 3:
+        v_list.append(0)
+    return data.UI_VER_PREFIX + data.UI_VER_SEP.join(map(str, v_list))
 
 # === FILE PATHS ===
 def find_root(path):
@@ -103,7 +113,7 @@ def scan_versions(name, path):
                             if obj_name.startswith(name + data.VER_SEP):
                                 try: vers.append(tuple(map(int, obj_name[len(name)+1:].split(data.VER_SEP))))
                                 except: pass
-                except: pass
+                except Exception as e: log.error(f"Failed to scan packed file {fpath}: {e}")
                 
     vers.sort()
     return vers
@@ -117,6 +127,92 @@ def prepare_path(path):
     if not path.endswith(data.BLEND_EXT): path += data.BLEND_EXT
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
+
+# === MIGRATION ===
+def migrate_all_versions(root, new_mode):
+    """Unpacks everything to individual files, then repacks according to new_mode."""
+    if not root: return
+    vdir = os.path.join(root, data.V_DIR)
+    if not os.path.exists(vdir): return
+    log.info(f"Starting migration to {new_mode}...")
+    
+    for asset_name in os.listdir(vdir):
+        asset_dir = os.path.join(vdir, asset_name)
+        if not os.path.isdir(asset_dir): continue
+        
+        # 1. Unpack any existing packed files to individual files
+        for f in list(os.listdir(asset_dir)):
+            if not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT): continue
+            fpath = os.path.join(asset_dir, f)
+            
+            with wrapper.load_lib(fpath) as (df, dt):
+                obj_names = [n for n in df.objects if n.startswith(asset_name + data.VER_SEP)]
+                dt.objects = obj_names
+                
+            for ob in list(wrapper.get_all_objs()):
+                if ob.name in obj_names:
+                    wrapper.make_local(ob)
+                    ind_path = os.path.join(asset_dir, f"{ob.name}{data.BLEND_EXT}")
+                    blocks = {ob, ob.data} if ob.data else {ob}
+                    blocks.update(wrapper.get_mats(ob))
+                    wrapper.write_lib(ind_path, blocks)
+                    wrapper.remove_obj(ob)
+                    
+            os.remove(fpath)
+            
+        # If new mode is PER_VER, we are done.
+        if new_mode == data.MODE_VER: continue
+        
+        # 2. Group individual files and repack them
+        groups = {} # group_key -> [list of filepaths]
+        for f in os.listdir(asset_dir):
+            if not f.endswith(data.BLEND_EXT): continue
+            v_str = f[len(asset_name)+1:-len(data.BLEND_EXT)]
+            try:
+                v_tuple = tuple(map(int, v_str.split(data.VER_SEP)))
+            except: continue
+            
+            if new_mode == data.MODE_SUB:
+                group_key = v_tuple[:2]
+            elif new_mode == data.MODE_RELEASE:
+                group_key = (v_tuple[0],)
+            else:
+                continue
+                
+            if group_key not in groups: groups[group_key] = []
+            groups[group_key].append(os.path.join(asset_dir, f))
+            
+        for group_key, files in groups.items():
+            if new_mode == data.MODE_SUB:
+                packed_name = f"{asset_name}{data.VER_SEP}{data.VER_SEP.join(map(str, group_key))}{data.PACKED_SUFFIX}{data.BLEND_EXT}"
+            elif new_mode == data.MODE_RELEASE:
+                packed_name = f"{asset_name}{data.VER_SEP}{group_key[0]}{data.PACKED_SUFFIX}{data.BLEND_EXT}"
+                
+            packed_path = os.path.join(asset_dir, packed_name)
+            
+            loaded_objs = []
+            for fpath in files:
+                with wrapper.load_lib(fpath) as (df, dt):
+                    obj_names = [n for n in df.objects if n.startswith(asset_name)]
+                    dt.objects = obj_names
+                    
+                for ob in list(wrapper.get_all_objs()):
+                    if ob.name in obj_names:
+                        wrapper.make_local(ob)
+                        loaded_objs.append(ob)
+                        
+            blocks = set()
+            for ob in loaded_objs:
+                blocks.add(ob)
+                if ob.data: blocks.add(ob.data)
+                blocks.update(wrapper.get_mats(ob))
+                
+            wrapper.write_lib(packed_path, blocks)
+            
+            for ob in loaded_objs: wrapper.remove_obj(ob)
+            for fpath in files: os.remove(fpath)
+                
+    log.info("Migration complete.")
 
 # === SAFE WRITE GATEWAY ===
 def _get_unique_path(path):
@@ -138,7 +234,7 @@ def _resolve_safety(path, mode, *args):
         case data.MODE_BACKUP:
             bak_path = _get_unique_path(path + data.BAK_EXT)
             os.rename(path, bak_path)
-            print(data.WARN_BACKUP.format(bak_path))
+            log.info(f"Backed up file to: {bak_path}")
             return path
         case data.MODE_CUSTOM:
             if args and callable(args[0]): return args[0](path)
@@ -232,10 +328,6 @@ def validate_lib_file(lib_path, obj_name):
         _resolve_safety(lib_path, data.MODE_BACKUP)
 
 def write_obj(obj, path, name=None, cat=None, mode=data.MODE_REPLACE):
-    """
-    Writes an object to a .blend file, ensuring it is saved with the correct name.
-    Temporarily renames objects/meshes if there are collisions in the scene.
-    """
     orig_name = obj.name
     orig_data_name = obj.data.name if obj.data else None
     temp_name = name + data.TEMP_SUFFIX if name else None
@@ -283,12 +375,12 @@ def backup_packed_file(path):
         if os.path.exists(curr): os.rename(curr, nxt)
         
     os.rename(path, f"{path}.bak1")
+    log.info(f"Backed up packed file to: {path}.bak1")
 
 def pack_version(obj, name, v_tuple, path):
     """Packs an object into a single .blend file containing multiple versions."""
     backup_packed_file(path)
     
-    # Load existing objects from the backup to avoid file lock conflicts
     loaded_objs = []
     bak_path = f"{path}.bak1"
     if os.path.exists(bak_path):
@@ -301,13 +393,11 @@ def pack_version(obj, name, v_tuple, path):
                 wrapper.make_local(ob)
                 loaded_objs.append(ob)
                 
-    # Temporarily rename live object to its full version string
     orig_name = obj.name
     orig_data_name = obj.data.name if obj.data else None
     v_str = data.VER_SEP.join(map(str, v_tuple))
     target_name = f"{name}{data.VER_SEP}{v_str}"
     
-    # Move any colliding objects out of the way
     if target_name in wrapper.get_all_objs() and wrapper.get_all_objs()[target_name] != obj:
         wrapper.get_all_objs()[target_name].name = target_name + data.TEMP_SUFFIX
         
@@ -325,12 +415,11 @@ def pack_version(obj, name, v_tuple, path):
         blocks.update(wrapper.get_mats(ob))
         
     safe_write(path, blocks, data.MODE_REPLACE)
+    log.info(f"Packed version {v_str} into {path}")
     
-    # Restore live obj name
     obj.name = orig_name
     if obj.data and orig_data_name: obj.data.name = orig_data_name
         
-    # Clean up loaded objects
     for ob in loaded_objs: wrapper.remove_obj(ob)
 
 def sync_file_to_lib(ver_path, lib_path, name, tag=None):
@@ -378,6 +467,7 @@ def setup_lib(obj, name, filepath):
     set_name(obj, name)
     set_uuid(obj, str(uuid.uuid4()))
     set_lib(obj, path)
+    log.info(f"Setup library for {name} at {path}")
     return data.INFO_LIB_SET.format(path)
 
 def save_version(obj, action=data.ACT_SAVE):
@@ -403,13 +493,14 @@ def save_version(obj, action=data.ACT_SAVE):
     if mode == data.MODE_VER:
         write_obj(obj, ver_path, name, mode=data.MODE_SAFE)
     else:
-        pack_version(obj, name, new_ver, ver_path) # Removed cat to prevent asset marks in version files
+        pack_version(obj, name, new_ver, ver_path)
     
     validate_lib_file(lib, name)
     write_obj(obj, lib, name, cat, data.MODE_REPLACE)
     
     set_ver(obj, new_ver)
     wrapper.refresh_assets()
+    log.info(f"Saved {name} {v_str} (Mode: {mode})")
     return data.INFO_SAVED.format(name, v_str)
 
 def set_main_version(obj, v_str):
@@ -427,6 +518,7 @@ def set_main_version(obj, v_str):
         sync_packed_to_lib(ver_path, lib, name, v_str, get_cat(obj))
         
     wrapper.refresh_assets()
+    log.info(f"Set main version for {name} to {v_str}")
     return data.INFO_SET_MAIN.format(name, v_str)
 
 def enter_edit(obj):

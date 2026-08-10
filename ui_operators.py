@@ -1,6 +1,7 @@
 """UI logic for Operators."""
 import bpy
 from . import wrapper, functions, data
+from .tests import run_tests
 
 def _report(op, msg, type=data.REPORT_ERROR):
     op.report({type}, msg)
@@ -13,6 +14,16 @@ def _get_cats(self, context):
     if not lib: return []
     cats = functions.read_cats(lib)
     return [(cid, name, name) for name, cid in cats.items()]
+
+class REOM_VC_OT_run_tests(bpy.types.Operator):
+    bl_idname = data.OP_RUN_TESTS
+    bl_label = data.OP_RUN_TESTS_LABEL
+    
+    def execute(self, ctx):
+        result = run_tests()
+        msg = f"Ran {result.testsRun} tests. Success: {result.wasSuccessful()}"
+        print(msg)
+        return _report(self, msg, data.REPORT_INFO)
 
 class REOM_VC_OT_startup(bpy.types.Operator):
     bl_idname = data.OP_STARTUP

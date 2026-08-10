@@ -78,6 +78,7 @@ PREF_LIB = "lib_path"
 PREF_STORAGE = "storage_mode"
 WIDTH_SMALL = 300
 WIDTH_LARGE = 400
+OP_RUN_TESTS_LABEL = "Run Unit Tests"
 
 # === UI FORMATS ===
 UI_VER_PREFIX = "v"
@@ -102,6 +103,7 @@ OP_VERSION = "reom_vc.version"
 OP_SET_MAIN = "reom_vc.set_main"
 OP_SETUP_CAT = "reom_vc.setup_cat"
 OP_TEST = "reom_vc.test_scan"
+OP_RUN_TESTS = "reom_vc.run_tests"
 OP_ENTER_EDIT = "reom_vc.enter_edit"
 OP_END_EDIT = "reom_vc.end_edit"
 PANEL_ID = "VIEW3D_PT_reom_vc"

@@ -1,10 +1,21 @@
 import bpy
 from . import functions, wrapper, data
 
+def update_storage_mode(self, context):
+    """Callback to trigger migration when the preference changes."""
+    root = self.lib_path
+    if root:
+        functions.migrate_all_versions(root, self.storage_mode)
+
 class ReomPrefs(bpy.types.AddonPreferences):
     bl_idname = __package__
     lib_path: bpy.props.StringProperty(name=data.TEXT_PREF_LIB, subtype=data.SUBTYPE_DIR)
-    storage_mode: bpy.props.EnumProperty(items=data.ITEM_STORAGE_MODES, default=data.MODE_SUB, name=data.TEXT_PREF_STORAGE)
+    storage_mode: bpy.props.EnumProperty(
+        items=data.ITEM_STORAGE_MODES, 
+        default=data.MODE_SUB, 
+        name=data.TEXT_PREF_STORAGE,
+        update=update_storage_mode
+    )
     
     def draw(self, ctx):
         self.layout.prop(self, data.PREF_LIB)
@@ -65,3 +76,6 @@ class REOM_VC_PT_main(bpy.types.Panel):
                 row.label(text=functions.format_ver_ui(v))
                 op = row.operator(data.OP_SET_MAIN, text=data.TEXT_SET_MAIN)
                 op.version_str = functions.str_ver(v)
+                
+        l.separator()
+        l.operator(data.OP_RUN_TESTS)
