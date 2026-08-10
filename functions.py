@@ -5,7 +5,7 @@ from . import wrapper, data
 def addon_register(classes):
     wrapper.register(classes)
     
-    wrapper.register_keymap(data.OP_VERSION, data.KEY_SAVE, [data.MOD_SHIFT, data.MOD_ALT], data.PROP_ACTION, data.ACT_SAVE)
+    wrapper.register_keymap(data.OP_VERSION, data.KEY_SAVE, [data.MOD_CTRL], data.PROP_ACTION, data.ACT_SAVE)
     
     mod = sys.modules.get(__package__)
     if mod and getattr(mod, data.AUTO_ENABLED, False):
@@ -20,6 +20,7 @@ def addon_register(classes):
 def addon_unregister(classes): 
     wrapper.unregister_keymaps()
     wrapper.unregister(classes)
+
 
 # === STATE ===
 def get_name(obj):

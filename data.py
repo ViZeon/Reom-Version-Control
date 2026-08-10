@@ -94,7 +94,7 @@ PANEL_ID = "VIEW3D_PT_reom_vc"
 
 # === KEYMAP ===
 KEYMAP_NAME = "Reom VC"
-KEY_SAVE = 'R'
+KEY_SAVE = 'W'
 MOD_SHIFT = 'SHIFT'
 MOD_ALT = 'ALT'
 MOD_CTRL = 'CTRL'
