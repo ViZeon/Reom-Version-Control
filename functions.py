@@ -151,5 +151,5 @@ def assign_cat(obj, cid):
 def scan_info(obj):
     name = get_name(obj)
     vers = scan_versions(name, wrapper.get_prefs().lib_path)
-    if vers: return data.INFO_VER_LIST.format(name, data.TAG_JOIN.join(str_ver(v) for v in vers))
+    if vers: return data.INFO_VER_LIST.format(name, data.LIST_JOIN.join(str_ver(v) for v in vers))
     return data.INFO_NO_VER.format(name)
