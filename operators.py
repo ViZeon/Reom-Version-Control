@@ -2,6 +2,7 @@
 
 import os
 import bpy
+import uuid
 from . import blender_api, funcs
 from .variables_ui import (
     STARTUP_BL_IDNAME, STARTUP_LABEL, STARTUP_TEXT,
@@ -11,8 +12,6 @@ from .variables_ui import (
     SET_TAG_BL_IDNAME, SET_TAG_LABEL,
     NO_OBJECT_TEXT, NO_LIB_FILE_TEXT,
 )
-
-_highlight_versions_cache = []
 
 class REOM_VC_OT_startup(bpy.types.Operator):
     bl_idname = STARTUP_BL_IDNAME
@@ -110,9 +109,12 @@ class REOM_VC_OT_highlight(bpy.types.Operator):
     bl_idname = HIGHLIGHT_BL_IDNAME
     bl_label = HIGHLIGHT_LABEL
     
-    version_index: bpy.props.IntProperty(default=-1)
+    version_str: bpy.props.StringProperty()
     
     def invoke(self, context, event):
+        if self.version_str:
+            return self.execute(context)
+        
         obj = blender_api.context_get_active_object()
         if not obj:
             self.report({'ERROR'}, NO_OBJECT_TEXT)
@@ -123,45 +125,52 @@ class REOM_VC_OT_highlight(bpy.types.Operator):
         versions = funcs.file_scan_versions(mesh_name, prefs.lib_path)
         versions.sort()
         
-        global _highlight_versions_cache
-        _highlight_versions_cache = versions
+        if not versions:
+            self.report({'INFO'}, "No versions found")
+            return {'CANCELLED'}
         
         return context.window_manager.invoke_props_dialog(self, width=300)
     
     def draw(self, context):
-        self.layout.label(text="Pick version to highlight:")
-        for i, ver in enumerate(_highlight_versions_cache):
-            ver_str = funcs.version_to_string(ver)
-            self.layout.prop(self, "version_index", text=ver_str, index=i)
-    
-    def execute(self, context):
-        if self.version_index < 0 or self.version_index >= len(_highlight_versions_cache):
-            self.report({'ERROR'}, "No version selected")
-            return {'CANCELLED'}
-        
         obj = blender_api.context_get_active_object()
         mesh_name = funcs.mesh_get_name(obj)
-        ver = _highlight_versions_cache[self.version_index]
-        ver_str = funcs.version_to_string(ver)
+        prefs = context.preferences.addons[__package__].preferences
+        versions = funcs.file_scan_versions(mesh_name, prefs.lib_path)
+        versions.sort()
         
+        self.layout.label(text="Pick version to highlight:")
+        for ver in versions:
+            ver_str = funcs.version_to_string(ver)
+            op = self.layout.operator(HIGHLIGHT_BL_IDNAME, text=ver_str)
+            op.version_str = ver_str
+    
+    def execute(self, context):
+        obj = blender_api.context_get_active_object()
+        mesh_name = funcs.mesh_get_name(obj)
         prefs = context.preferences.addons[__package__].preferences
         root = prefs.lib_path
         lib_file = funcs.mesh_get_lib_file(obj)
         
-        ver_path = funcs.file_build_version_path(mesh_name, ver_str, root)
+        if not lib_file:
+            self.report({'ERROR'}, NO_LIB_FILE_TEXT)
+            return {'CANCELLED'}
+        
+        ver_path = funcs.file_build_version_path(mesh_name, self.version_str, root)
         tag = funcs.mesh_get_tag(obj)
         
         funcs.library_update_from_file(ver_path, lib_file, tag)
-        self.report({'INFO'}, f"Highlighted {mesh_name} {ver_str}")
+        self.report({'INFO'}, f"Highlighted {mesh_name} {self.version_str}")
         return {'FINISHED'}
 
 class REOM_VC_OT_set_tag(bpy.types.Operator):
     bl_idname = SET_TAG_BL_IDNAME
     bl_label = SET_TAG_LABEL
     
-    tag: bpy.props.StringProperty(name="Tag")
+    tag: bpy.props.StringProperty()
     
     def invoke(self, context, event):
+        if self.tag:
+            return self.execute(context)
         return context.window_manager.invoke_props_dialog(self, width=300)
     
     def draw(self, context):
@@ -171,9 +180,7 @@ class REOM_VC_OT_set_tag(bpy.types.Operator):
         if tags:
             self.layout.label(text="Existing tags:")
             for t in tags:
-                row = self.layout.row()
-                row.label(text=t)
-                op = row.operator(SET_TAG_BL_IDNAME, text="Pick")
+                op = self.layout.operator(SET_TAG_BL_IDNAME, text=t)
                 op.tag = t
     
     def execute(self, context):

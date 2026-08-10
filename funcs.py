@@ -145,7 +145,7 @@ def file_build_version_path(mesh_name, ver_str, lib_root):
 # === LIBRARY FILE OPERATIONS ===
 
 def library_write_object(obj, filepath):
-    """Save object and its data blocks to a .blend file."""
+    """Save object and its data blocks to a .blend file. Plain file, no asset setup."""
     blocks = {obj}
     if obj.data:
         blocks.add(obj.data)
@@ -154,36 +154,30 @@ def library_write_object(obj, filepath):
             blocks.add(mat)
     blender_api.data_libraries_write(filepath, blocks, fake_user=True)
 
+def tag_to_catalog(tag):
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, tag))
+
 def library_update_from_object(obj, lib_filepath, tag):
-    """Write object into library file and mark as asset."""
+    """Mark asset on original object, write clean file. No load/writeback."""
     if not obj.asset_data:
         blender_api.asset_mark(obj)
     if tag and obj.asset_data:
-        catalog = tag_to_catalog(tag)
-        blender_api.asset_set_catalog(obj, catalog)
-    
+        blender_api.asset_set_catalog(obj, tag_to_catalog(tag))
     library_write_object(obj, lib_filepath)
 
 def library_update_from_file(source_path, lib_filepath, tag):
-    """Copy a version file into the library file and mark as asset."""
-    shutil.copy2(source_path, lib_filepath)
+    """Load backup, mark asset, write ONE object to library, cleanup."""
+    existing = set(bpy.data.objects.keys())
     
-    with bpy.data.libraries.load(lib_filepath, link=False) as (data_from, data_to):
+    with blender_api.libraries_load(source_path, link=False) as (data_from, data_to):
         data_to.objects = data_from.objects
     
-    blocks = set()
-    for ob in data_to.objects:
+    loaded = [ob for ob in bpy.data.objects if ob.name not in existing]
+    
+    for ob in loaded:
         if not ob.asset_data:
             blender_api.asset_mark(ob)
         if tag and ob.asset_data:
-            catalog = tag_to_catalog(tag)
-            blender_api.asset_set_catalog(ob, catalog)
-        blocks.add(ob)
-        if ob.data:
-            blocks.add(ob.data)
-        for mat in ob.data.materials:
-            if mat:
-                blocks.add(mat)
-    
-    if blocks:
-        blender_api.data_libraries_write(lib_filepath, blocks, fake_user=True)
+            blender_api.asset_set_catalog(ob, tag_to_catalog(tag))
+        library_write_object(ob, lib_filepath)
+        blender_api.object_remove(ob)

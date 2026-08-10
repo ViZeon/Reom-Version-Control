@@ -73,9 +73,15 @@ def asset_set_catalog(obj, catalog_id):
 def data_libraries_write(filepath, blocks, fake_user=True):
     bpy.data.libraries.write(filepath, blocks, fake_user=fake_user)
 
+def libraries_load(filepath, link=False):
+    return bpy.data.libraries.load(filepath, link=link)
+
 # === FILE OPERATIONS ===
 def file_save_as(filepath):
     bpy.ops.wm.save_as_mainfile(filepath=filepath, copy=True)
 
 def path_abspath(path):
     return bpy.path.abspath(path)
+
+def object_remove(obj):
+    bpy.data.objects.remove(obj, do_unlink=True)
