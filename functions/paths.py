@@ -88,26 +88,27 @@ def migrate_all_versions(root, new_mode):
             if not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT): continue
             fpath = os.path.join(asset_dir, f)
             
+            existing = set(wrapper.get_all_objs().keys())
             with wrapper.load_lib(fpath) as (df, dt):
                 obj_names = [n for n in df.objects if n.startswith(asset_name + data.VER_SEP)]
                 dt.objects = obj_names
                 
             for ob in list(wrapper.get_all_objs()):
-                if ob.name in obj_names:
+                if ob.name not in existing:
                     wrapper.make_local(ob)
                     ind_path = os.path.join(asset_dir, f"{ob.name}{data.BLEND_EXT}")
                     blocks = {ob, ob.data} if ob.data else {ob}
                     blocks.update(wrapper.get_mats(ob))
                     wrapper.write_lib(ind_path, blocks)
                     wrapper.remove_obj(ob)
+                    existing.add(ob.name)
                     
             os.remove(fpath)
             
-        # If new mode is PER_VER, we are done.
         if new_mode == data.MODE_VER: continue
         
         # 2. Group individual files and repack them
-        groups = {} # group_key -> [list of filepaths]
+        groups = {} # group_key -> [list of (filepath, v_tuple)]
         for f in os.listdir(asset_dir):
             if not f.endswith(data.BLEND_EXT): continue
             v_str = f[len(asset_name)+1:-len(data.BLEND_EXT)]
@@ -119,11 +120,10 @@ def migrate_all_versions(root, new_mode):
                 group_key = v_tuple[:2]
             elif new_mode == data.MODE_RELEASE:
                 group_key = (v_tuple[0],)
-            else:
-                continue
+            else: continue
                 
             if group_key not in groups: groups[group_key] = []
-            groups[group_key].append(os.path.join(asset_dir, f))
+            groups[group_key].append((os.path.join(asset_dir, f), v_tuple))
             
         for group_key, files in groups.items():
             if new_mode == data.MODE_SUB:
@@ -134,15 +134,20 @@ def migrate_all_versions(root, new_mode):
             packed_path = os.path.join(asset_dir, packed_name)
             
             loaded_objs = []
-            for fpath in files:
+            existing = set(wrapper.get_all_objs().keys())
+            
+            for fpath, v_tuple in files:
                 with wrapper.load_lib(fpath) as (df, dt):
-                    obj_names = [n for n in df.objects if n.startswith(asset_name)]
-                    dt.objects = obj_names
+                    dt.objects = [n for n in df.objects if n.startswith(asset_name)]
                     
                 for ob in list(wrapper.get_all_objs()):
-                    if ob.name in obj_names:
+                    if ob.name not in existing:
                         wrapper.make_local(ob)
+                        v_str = data.VER_SEP.join(map(str, v_tuple))
+                        ob.name = f"{asset_name}{data.VER_SEP}{v_str}"
+                        if ob.data: ob.data.name = ob.name
                         loaded_objs.append(ob)
+                        existing.add(ob.name)
                         
             blocks = set()
             for ob in loaded_objs:
@@ -151,8 +156,10 @@ def migrate_all_versions(root, new_mode):
                 blocks.update(wrapper.get_mats(ob))
                 
             wrapper.write_lib(packed_path, blocks)
+            log.info(f"Packed {len(loaded_objs)} versions into {packed_path}")
             
             for ob in loaded_objs: wrapper.remove_obj(ob)
-            for fpath in files: os.remove(fpath)
+            for fpath, _ in files:
+                if os.path.exists(packed_path): os.remove(fpath)
                 
     log.info("Migration complete.")
