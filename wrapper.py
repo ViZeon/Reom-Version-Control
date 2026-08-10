@@ -11,6 +11,7 @@ def unregister(classes):
 def get_prefs(): return bpy.context.preferences.addons[__package__].preferences
 def get_active_obj(): return bpy.context.active_object
 def get_all_objs(): return bpy.data.objects
+def get_meshes(): return bpy.data.meshes
 def get_prop(obj, key): return obj.get(key)
 def set_prop(obj, key, val): obj[key] = val
 def has_asset(obj): return obj.asset_data is not None

@@ -206,7 +206,31 @@ def validate_lib_file(lib_path, obj_name):
     if needs_backup:
         _resolve_safety(lib_path, data.MODE_BACKUP)
 
-def write_obj(obj, path, cat=None, mode=data.MODE_REPLACE):
+def write_obj(obj, path, name=None, cat=None, mode=data.MODE_REPLACE):
+    """
+    Writes an object to a .blend file, ensuring it is saved with the correct name.
+    Temporarily renames objects/meshes if there are collisions in the scene.
+    """
+    orig_name = obj.name
+    orig_data_name = obj.data.name if obj.data else None
+    temp_obj = None
+    temp_data = None
+    
+    if name and obj.name != name:
+        # Temporarily move colliding object out of the way
+        if name in wrapper.get_all_objs():
+            temp_obj = wrapper.get_all_objs()[name]
+            temp_obj.name = name + data.TEMP_SUFFIX
+            
+        obj.name = name
+        
+        if obj.data and obj.data.name != name:
+            meshes = wrapper.get_meshes()
+            if name in meshes:
+                temp_data = meshes[name]
+                temp_data.name = name + data.TEMP_SUFFIX
+            obj.data.name = name
+
     if cat:
         wrapper.mark_asset(obj)
         wrapper.set_catalog(obj, cat)
@@ -217,6 +241,17 @@ def write_obj(obj, path, cat=None, mode=data.MODE_REPLACE):
     
     if cat:
         wrapper.clear_asset(obj)
+        
+    # Restore original names
+    if name and obj.name != orig_name:
+        obj.name = orig_name
+        if obj.data and orig_data_name:
+            obj.data.name = orig_data_name
+            
+    if temp_obj:
+        temp_obj.name = name
+    if temp_data:
+        temp_data.name = name
 
 def sync_file_to_lib(ver_path, lib_path, name, tag=None):
     existing = set(wrapper.get_all_objs().keys())
@@ -232,9 +267,8 @@ def sync_file_to_lib(ver_path, lib_path, name, tag=None):
     
     for ob in wrapper.get_all_objs():
         if ob.name not in existing:
-            ob.name = name
-            if ob.data: ob.data.name = name
-            write_obj(ob, lib_path, tag, data.MODE_REPLACE)
+            # write_obj handles renaming to `name` safely
+            write_obj(ob, lib_path, name, tag, data.MODE_REPLACE)
             wrapper.remove_obj(ob)
             
     if temp_name in wrapper.get_all_objs():
@@ -268,10 +302,10 @@ def save_version(obj, action=data.ACT_SAVE):
             
     v_str = str_ver(new_ver)
     
-    write_obj(obj, get_version_path(name, v_str, root), mode=data.MODE_SAFE)
+    write_obj(obj, get_version_path(name, v_str, root), name, mode=data.MODE_SAFE)
     
     validate_lib_file(lib, name)
-    write_obj(obj, lib, cat, data.MODE_REPLACE)
+    write_obj(obj, lib, name, cat, data.MODE_REPLACE)
     
     set_ver(obj, new_ver)
     wrapper.refresh_assets()
