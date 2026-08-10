@@ -2,6 +2,8 @@
 import bpy
 from . import data
 
+addon_keymaps = []
+
 def register(classes):
     for c in classes: bpy.utils.register_class(c)
 
@@ -66,6 +68,35 @@ def link_obj_from_lib(lib_path, name):
             bpy.context.collection.objects.link(obj)
         bpy.context.view_layer.objects.active = obj
         obj.select_set(True)
+
+# === KEYMAPS ===
+def register_keymap(op_id, key, mods, prop_name=None, prop_val=None):
+    wm = bpy.context.window_manager
+    if not wm.keyconfigs.addon: return
+    
+    # space_type='VIEW_3D' guarantees it shows up in the 3D View keymaps and works reliably
+    km = wm.keyconfigs.addon.keymaps.new(name=data.KEYMAP_NAME, space_type='VIEW_3D', region_type='WINDOW')
+    kmi = km.keymap_items.new(op_id, key, 'PRESS', 
+                              shift=data.MOD_SHIFT in mods, 
+                              alt=data.MOD_ALT in mods, 
+                              ctrl=data.MOD_CTRL in mods)
+    if prop_name and prop_val:
+        setattr(kmi.properties, prop_name, prop_val)
+        
+    addon_keymaps.append((km, kmi))
+
+def unregister_keymaps():
+    wm = bpy.context.window_manager
+    if not wm.keyconfigs.addon: return
+    
+    for km, kmi in addon_keymaps:
+        try:
+            km.keymap_items.remove(kmi)
+            wm.keyconfigs.addon.keymaps.remove(km)
+        except:
+            pass
+            
+    addon_keymaps.clear()
 
 # === ASSET BROWSER ===
 def refresh_assets():

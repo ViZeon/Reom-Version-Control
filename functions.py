@@ -4,6 +4,9 @@ from . import wrapper, data
 
 def addon_register(classes):
     wrapper.register(classes)
+    
+    wrapper.register_keymap(data.OP_VERSION, data.KEY_SAVE, [data.MOD_SHIFT, data.MOD_ALT], data.PROP_ACTION, data.ACT_SAVE)
+    
     mod = sys.modules.get(__package__)
     if mod and getattr(mod, data.AUTO_ENABLED, False):
         setattr(mod, data.AUTO_ENABLED, False)
@@ -14,7 +17,9 @@ def addon_register(classes):
                 with wrapper.override(win, area): wrapper.invoke(data.OP_STARTUP)
         wrapper.timer(_startup, data.STARTUP_DELAY)
 
-def addon_unregister(classes): wrapper.unregister(classes)
+def addon_unregister(classes): 
+    wrapper.unregister_keymaps()
+    wrapper.unregister(classes)
 
 # === STATE ===
 def get_name(obj):

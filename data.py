@@ -92,6 +92,13 @@ OP_ENTER_EDIT = "reom_vc.enter_edit"
 OP_END_EDIT = "reom_vc.end_edit"
 PANEL_ID = "VIEW3D_PT_reom_vc"
 
+# === KEYMAP ===
+KEYMAP_NAME = "Reom VC"
+KEY_SAVE = 'R'
+MOD_SHIFT = 'SHIFT'
+MOD_ALT = 'ALT'
+MOD_CTRL = 'CTRL'
+
 # === UI STRINGS ===
 TEXT_READY = "VC is ready."
 TEXT_SELECT_LIB = "Select library file"
