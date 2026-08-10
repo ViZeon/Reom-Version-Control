@@ -17,7 +17,18 @@ def addon_register(classes):
 def addon_unregister(classes): wrapper.unregister(classes)
 
 # === STATE ===
-def get_name(obj): return wrapper.get_prop(obj, data.P_NAME)
+def get_name(obj):
+    name = wrapper.get_prop(obj, data.P_NAME)
+    if name: return name
+    
+    # Fallback: parse the library filename (e.g., "Cube.blend" -> "Cube")
+    lib = get_lib(obj)
+    if lib:
+        base = os.path.basename(lib)
+        return os.path.splitext(base)[0]
+        
+    return obj.name
+
 def get_uuid(obj): return wrapper.get_prop(obj, data.P_UUID)
 def get_ver(obj):
     v = wrapper.get_prop(obj, data.P_VER)
@@ -266,7 +277,7 @@ def save_version(obj, action=data.ACT_SAVE):
     wrapper.refresh_assets()
     return data.INFO_SAVED.format(name, v_str)
 
-def highlight_version(obj, v_str):
+def set_main_version(obj, v_str):
     lib = get_lib(obj)
     name = get_name(obj)
     ver_path = get_version_path(name, v_str, wrapper.get_prefs().lib_path)
@@ -274,7 +285,7 @@ def highlight_version(obj, v_str):
     validate_lib_file(lib, name)
     sync_file_to_lib(ver_path, lib, name, get_cat(obj))
     wrapper.refresh_assets()
-    return data.INFO_HIGHLIGHTED.format(name, v_str)
+    return data.INFO_SET_MAIN.format(name, v_str)
 
 def enter_edit(obj):
     wrapper.make_local(obj)

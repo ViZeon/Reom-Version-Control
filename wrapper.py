@@ -79,6 +79,7 @@ def link_obj_from_lib(lib_path, name):
 
 # === ASSET BROWSER ===
 def refresh_assets():
+    """Force refresh all open Asset Browsers after a short delay to ensure file locks are released."""
     def _refresh():
         for w in bpy.context.window_manager.windows:
             for a in w.screen.areas:

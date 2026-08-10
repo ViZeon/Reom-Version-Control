@@ -38,12 +38,10 @@ class REOM_VC_OT_setup(bpy.types.Operator):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
         
-        # Pre-fill Asset Name if empty
         if not self.asset_name:
             existing_name = functions.get_name(obj)
             self.asset_name = existing_name if existing_name else obj.name
             
-        # Pre-fill Filepath if empty
         if not self.filepath:
             self.filepath = functions.get_default_lib_path(obj)
             
@@ -101,16 +99,16 @@ class REOM_VC_OT_version(bpy.types.Operator):
             wrapper.invoke(data.OP_SETUP_CAT); return {data.OP_CANCEL}
         return _report(self, functions.save_version(obj, self.action), data.REPORT_INFO)
 
-class REOM_VC_OT_highlight(bpy.types.Operator):
-    bl_idname = data.OP_HIGHLIGHT
-    bl_label = data.TEXT_HIGHLIGHT
+class REOM_VC_OT_set_main(bpy.types.Operator):
+    bl_idname = data.OP_SET_MAIN
+    bl_label = data.TEXT_SET_MAIN
     version_str: bpy.props.StringProperty()
     
     def execute(self, ctx):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
         if not functions.get_lib(obj): return _report(self, data.ERR_NO_LIB)
-        return _report(self, functions.highlight_version(obj, self.version_str), data.REPORT_INFO)
+        return _report(self, functions.set_main_version(obj, self.version_str), data.REPORT_INFO)
 
 class REOM_VC_OT_enter_edit(bpy.types.Operator):
     bl_idname = data.OP_ENTER_EDIT

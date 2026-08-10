@@ -38,10 +38,10 @@ class REOM_VC_PT_main(bpy.types.Panel):
         if cat: l.label(text=f"{data.TEXT_CAT}{cat}")
         
         if linked:
-            l.box().label(text="Linked (Read-Only)")
+            l.box().label(text=data.TEXT_STATE_LINKED)
             l.operator(data.OP_ENTER_EDIT)
         else:
-            l.box().label(text="Local (Editing)")
+            l.box().label(text=data.TEXT_STATE_ACTIVE)
             row = l.row(align=True)
             op = row.operator(data.OP_VERSION, text=data.TEXT_SAVE)
             op.action = data.ACT_SAVE
@@ -59,5 +59,5 @@ class REOM_VC_PT_main(bpy.types.Panel):
             for v in vers:
                 row = box.row()
                 row.label(text=functions.format_ver_ui(v))
-                op = row.operator(data.OP_HIGHLIGHT, text=data.TEXT_HIGHLIGHT)
+                op = row.operator(data.OP_SET_MAIN, text=data.TEXT_SET_MAIN)
                 op.version_str = functions.str_ver(v)
