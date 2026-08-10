@@ -58,6 +58,8 @@ OP_SETUP_LABEL = "Setup Lib File"
 OP_VERSION_LABEL = "Version Actions"
 OP_SETUP_CAT_LABEL = "Set Category"
 OP_TEST_LABEL = "Test Scan"
+OP_ENTER_EDIT_LABEL = "Enter Edit"
+OP_END_EDIT_LABEL = "End Edit"
 PREF_LIB = "lib_path"
 WIDTH_SMALL = 300
 WIDTH_LARGE = 400
@@ -68,6 +70,7 @@ UI_VER_SEP = "."
 
 # === PROPERTIES ===
 P_NAME = "reom_vc_name"
+P_UUID = "reom_vc_uuid"
 P_VER = "reom_vc_ver"
 P_LIB = "reom_vc_lib"
 P_CAT = "reom_vc_cat"
@@ -75,6 +78,8 @@ PROP_FILEPATH = "filepath"
 PROP_EXISTING = "existing"
 PROP_NEW_CAT = "new_cat"
 PROP_ACTION = "action"
+PROP_ASSET_NAME = "asset_name"
+
 
 # === UI IDS ===
 OP_STARTUP = "reom_vc.startup"
@@ -83,6 +88,8 @@ OP_VERSION = "reom_vc.version"
 OP_HIGHLIGHT = "reom_vc.highlight"
 OP_SETUP_CAT = "reom_vc.setup_cat"
 OP_TEST = "reom_vc.test_scan"
+OP_ENTER_EDIT = "reom_vc.enter_edit"
+OP_END_EDIT = "reom_vc.end_edit"
 PANEL_ID = "VIEW3D_PT_reom_vc"
 
 # === UI STRINGS ===
@@ -90,6 +97,7 @@ TEXT_READY = "VC is ready."
 TEXT_SELECT_LIB = "Select library file"
 TEXT_FILEPATH_LABEL = "Library File"
 TEXT_FILEPATH_DESC = "Creates a .blend file to hold the asset and its versions."
+TEXT_ASSET_NAME = "Asset Name"
 TEXT_PICK_VER = "Pick version:"
 TEXT_HIGHLIGHT = "Highlight"
 TEXT_MESH = "Mesh: "
@@ -115,6 +123,8 @@ INFO_HIGHLIGHTED = "Highlighted {} {}"
 INFO_CAT_SET = "Category set: {}"
 INFO_VER_LIST = "Mesh '{}' versions: {}"
 INFO_NO_VER = "Mesh '{}' has no versions"
+INFO_ENTER_EDIT = "Entered edit mode for {}"
+INFO_END_EDIT = "Saved and re-linked {}"
 
 # === WARNINGS ===
 WARN_BACKUP = "Backed up user file to: {}"

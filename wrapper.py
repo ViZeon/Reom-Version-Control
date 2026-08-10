@@ -40,9 +40,31 @@ def remove_obj(obj): bpy.data.objects.remove(obj, do_unlink=data.DO_UNLINK)
 def save_main(path): bpy.ops.wm.save_as_mainfile(filepath=path, copy=data.COPY_MAIN)
 def abspath(p): return bpy.path.abspath(p)
 
+# === OBJECT LINKING ===
+def is_linked(obj):
+    if not obj: return False
+    if obj.library: return True
+    if obj.data and obj.data.library: return True
+    return False
+
+def make_local(obj):
+    obj.make_local()
+    if obj.data: obj.data.make_local()
+    for mat in get_mats(obj):
+        mat.make_local()
+
+def link_obj_from_lib(lib_path, name):
+    with bpy.data.libraries.load(lib_path, link=True) as (df, dt):
+        dt.objects = [name] if name in df.objects else []
+    if name in bpy.data.objects:
+        obj = bpy.data.objects[name]
+        if obj.name not in bpy.context.collection.objects:
+            bpy.context.collection.objects.link(obj)
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+
 # === ASSET BROWSER ===
 def refresh_assets():
-    """Force refresh all open Asset Browsers after a short delay to ensure file locks are released."""
     def _refresh():
         for w in bpy.context.window_manager.windows:
             for a in w.screen.areas:

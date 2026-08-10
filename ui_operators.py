@@ -26,6 +26,8 @@ class REOM_VC_OT_startup(bpy.types.Operator):
 class REOM_VC_OT_setup(bpy.types.Operator):
     bl_idname = data.OP_SETUP
     bl_label = data.OP_SETUP_LABEL
+    
+    asset_name: bpy.props.StringProperty(name=data.TEXT_ASSET_NAME)
     filepath: bpy.props.StringProperty(
         name=data.TEXT_FILEPATH_LABEL, 
         subtype=data.SUBTYPE_FILE, 
@@ -35,18 +37,27 @@ class REOM_VC_OT_setup(bpy.types.Operator):
     def invoke(self, ctx, ev):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
+        
+        # Pre-fill Asset Name if empty
+        if not self.asset_name:
+            existing_name = functions.get_name(obj)
+            self.asset_name = existing_name if existing_name else obj.name
+            
+        # Pre-fill Filepath if empty
         if not self.filepath:
             self.filepath = functions.get_default_lib_path(obj)
+            
         return ctx.window_manager.invoke_props_dialog(self, width=data.WIDTH_LARGE)
         
     def draw(self, ctx):
         self.layout.label(text=data.TEXT_SELECT_LIB)
+        self.layout.prop(self, data.PROP_ASSET_NAME)
         self.layout.prop(self, data.PROP_FILEPATH)
         
     def execute(self, ctx):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
-        return _report(self, functions.setup_lib(obj, self.filepath), data.REPORT_INFO)
+        return _report(self, functions.setup_lib(obj, self.asset_name, self.filepath), data.REPORT_INFO)
 
 class REOM_VC_OT_setup_cat(bpy.types.Operator):
     bl_idname = data.OP_SETUP_CAT
@@ -100,6 +111,24 @@ class REOM_VC_OT_highlight(bpy.types.Operator):
         if not obj: return _report(self, data.ERR_NO_OBJ)
         if not functions.get_lib(obj): return _report(self, data.ERR_NO_LIB)
         return _report(self, functions.highlight_version(obj, self.version_str), data.REPORT_INFO)
+
+class REOM_VC_OT_enter_edit(bpy.types.Operator):
+    bl_idname = data.OP_ENTER_EDIT
+    bl_label = data.OP_ENTER_EDIT_LABEL
+    
+    def execute(self, ctx):
+        obj = wrapper.get_active_obj()
+        if not obj: return _report(self, data.ERR_NO_OBJ)
+        return _report(self, functions.enter_edit(obj), data.REPORT_INFO)
+
+class REOM_VC_OT_end_edit(bpy.types.Operator):
+    bl_idname = data.OP_END_EDIT
+    bl_label = data.OP_END_EDIT_LABEL
+    
+    def execute(self, ctx):
+        obj = wrapper.get_active_obj()
+        if not obj: return _report(self, data.ERR_NO_OBJ)
+        return _report(self, functions.end_edit(obj), data.REPORT_INFO)
 
 class REOM_VC_OT_test(bpy.types.Operator):
     bl_idname = data.OP_TEST

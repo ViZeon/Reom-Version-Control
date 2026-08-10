@@ -31,11 +31,27 @@ class REOM_VC_PT_main(bpy.types.Panel):
         name = functions.get_name(obj)
         ver = functions.get_ver(obj)
         cat = functions.get_cat_name(obj)
+        linked = functions.is_linked(obj)
         
         l.label(text=f"{data.TEXT_MESH}{name}")
         if ver: l.label(text=f"{data.TEXT_VERSION}{functions.format_ver_ui(ver)}")
         if cat: l.label(text=f"{data.TEXT_CAT}{cat}")
         
+        if linked:
+            l.box().label(text="Linked (Read-Only)")
+            l.operator(data.OP_ENTER_EDIT)
+        else:
+            l.box().label(text="Local (Editing)")
+            row = l.row(align=True)
+            op = row.operator(data.OP_VERSION, text=data.TEXT_SAVE)
+            op.action = data.ACT_SAVE
+            op = row.operator(data.OP_VERSION, text=data.TEXT_STEP)
+            op.action = data.ACT_STEP
+            op = row.operator(data.OP_VERSION, text=data.TEXT_RELEASE)
+            op.action = data.ACT_RELEASE
+            
+            l.operator(data.OP_END_EDIT)
+            
         vers = functions.scan_versions(name, wrapper.get_prefs().lib_path)
         if vers:
             l.label(text=data.TEXT_VERSIONS)
@@ -45,11 +61,3 @@ class REOM_VC_PT_main(bpy.types.Panel):
                 row.label(text=functions.format_ver_ui(v))
                 op = row.operator(data.OP_HIGHLIGHT, text=data.TEXT_HIGHLIGHT)
                 op.version_str = functions.str_ver(v)
-        
-        row = l.row(align=True)
-        op = row.operator(data.OP_VERSION, text=data.TEXT_SAVE)
-        op.action = data.ACT_SAVE
-        op = row.operator(data.OP_VERSION, text=data.TEXT_STEP)
-        op.action = data.ACT_STEP
-        op = row.operator(data.OP_VERSION, text=data.TEXT_RELEASE)
-        op.action = data.ACT_RELEASE

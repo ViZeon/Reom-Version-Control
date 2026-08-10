@@ -17,16 +17,20 @@ def addon_register(classes):
 def addon_unregister(classes): wrapper.unregister(classes)
 
 # === STATE ===
-def get_name(obj): return wrapper.get_prop(obj, data.P_NAME) or obj.name
+def get_name(obj): return wrapper.get_prop(obj, data.P_NAME)
+def get_uuid(obj): return wrapper.get_prop(obj, data.P_UUID)
 def get_ver(obj):
     v = wrapper.get_prop(obj, data.P_VER)
     return tuple(map(int, v.split(data.VER_SEP))) if v else None
 def get_lib(obj): return wrapper.get_prop(obj, data.P_LIB)
 def get_cat(obj): return wrapper.get_prop(obj, data.P_CAT)
+def is_linked(obj): return wrapper.is_linked(obj)
 
 def set_ver(obj, v): wrapper.set_prop(obj, data.P_VER, data.VER_SEP.join(map(str, v)))
 def set_lib(obj, p): wrapper.set_prop(obj, data.P_LIB, p)
 def set_cat(obj, cid): wrapper.set_prop(obj, data.P_CAT, cid)
+def set_name(obj, name): wrapper.set_prop(obj, data.P_NAME, name)
+def set_uuid(obj, uid): wrapper.set_prop(obj, data.P_UUID, uid)
 
 # === MATH & PARSING ===
 def bump_ver(v): return (v[0], v[1], v[2] + 1)
@@ -70,7 +74,8 @@ def get_version_path(name, v_str, root):
 def get_default_lib_path(obj):
     root = wrapper.get_prefs().lib_path
     if not root: return ""
-    return os.path.join(os.path.expanduser(root), f"{get_name(obj)}{data.BLEND_EXT}")
+    name = get_name(obj) or wrapper.get_active_obj().name
+    return os.path.join(os.path.expanduser(root), f"{name}{data.BLEND_EXT}")
 
 def prepare_path(path):
     if not path.endswith(data.BLEND_EXT): path += data.BLEND_EXT
@@ -225,9 +230,12 @@ def sync_file_to_lib(ver_path, lib_path, name, tag=None):
         wrapper.get_all_objs()[temp_name].name = name
 
 # === ACTIONS (Called by UI) ===
-def setup_lib(obj, filepath):
+def setup_lib(obj, name, filepath):
     path = prepare_path(wrapper.abspath(filepath))
     if not os.path.exists(path): wrapper.save_main(path)
+    
+    set_name(obj, name)
+    set_uuid(obj, str(uuid.uuid4()))
     set_lib(obj, path)
     return data.INFO_LIB_SET.format(path)
 
@@ -267,6 +275,18 @@ def highlight_version(obj, v_str):
     sync_file_to_lib(ver_path, lib, name, get_cat(obj))
     wrapper.refresh_assets()
     return data.INFO_HIGHLIGHTED.format(name, v_str)
+
+def enter_edit(obj):
+    wrapper.make_local(obj)
+    return data.INFO_ENTER_EDIT.format(get_name(obj))
+
+def end_edit(obj):
+    name = get_name(obj)
+    lib = get_lib(obj)
+    save_version(obj, data.ACT_SAVE)
+    wrapper.remove_obj(obj)
+    wrapper.link_obj_from_lib(lib, name)
+    return data.INFO_END_EDIT.format(name)
 
 def assign_cat(obj, cid):
     set_cat(obj, cid)
