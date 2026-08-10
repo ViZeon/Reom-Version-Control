@@ -49,4 +49,3 @@ class REOM_VC_PT_main(bpy.types.Panel):
                 op.version_str = functions.str_ver(v)
         
         l.operator(data.OP_SAVE)
-        l.operator(data.OP_HIGHLIGHT)

@@ -94,21 +94,6 @@ class REOM_VC_OT_highlight(bpy.types.Operator):
     bl_label = data.TEXT_HIGHLIGHT
     version_str: bpy.props.StringProperty()
     
-    def invoke(self, ctx, ev):
-        if self.version_str: return self.execute(ctx)
-        obj = wrapper.get_active_obj()
-        if not obj: return _report(self, data.ERR_NO_OBJ)
-        if not functions.scan_versions(functions.get_name(obj), wrapper.get_prefs().lib_path):
-            return _report(self, data.TEXT_NO_VER)
-        return ctx.window_manager.invoke_props_dialog(self, width=data.WIDTH_SMALL)
-        
-    def draw(self, ctx):
-        vers = functions.scan_versions(functions.get_name(wrapper.get_active_obj()), wrapper.get_prefs().lib_path)
-        self.layout.label(text=data.TEXT_PICK_VER)
-        for v in vers:
-            op = self.layout.operator(data.OP_HIGHLIGHT, text=functions.format_ver_ui(v))
-            op.version_str = functions.str_ver(v)
-            
     def execute(self, ctx):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
