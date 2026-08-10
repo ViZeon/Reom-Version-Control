@@ -261,7 +261,13 @@ def sync_file_to_lib(ver_path, lib_path, name, tag=None):
 # === ACTIONS (Called by UI) ===
 def setup_lib(obj, name, filepath):
     path = prepare_path(wrapper.abspath(filepath))
-    if not os.path.exists(path): wrapper.save_main(path)
+    
+    # If the file doesn't exist, instantly create it by writing just the object.
+    # This is 100x faster than saving the whole scene via save_as_mainfile.
+    if not os.path.exists(path):
+        blocks = {obj, obj.data} if obj.data else {obj}
+        blocks.update(wrapper.get_mats(obj))
+        wrapper.write_lib(path, blocks)
     
     set_name(obj, name)
     set_uuid(obj, str(uuid.uuid4()))
