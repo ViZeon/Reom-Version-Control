@@ -125,7 +125,6 @@ def validate_lib_file(lib_path, obj_name):
     try:
         with wrapper.load_lib(lib_path) as (df, dt):
             obj_count = len(df.objects)
-            # If there's more than 1 object, or 1 object but wrong name, backup.
             if obj_count > 1 or (obj_count == 1 and obj_name not in df.objects):
                 needs_backup = True
     except:
@@ -149,13 +148,32 @@ def write_obj(obj, path, cat=None):
     if cat:
         wrapper.clear_asset(obj)
 
-def sync_file_to_lib(ver_path, lib_path, tag=None):
+def sync_file_to_lib(ver_path, lib_path, name, tag=None):
     existing = set(wrapper.get_all_objs().keys())
+    
+    # Temporarily rename the live object to avoid naming collisions
+    live_obj = wrapper.get_active_obj()
+    temp_name = name + "_reom_temp"
+    if live_obj and live_obj.name == name:
+        live_obj.name = temp_name
+        existing.remove(name)
+        existing.add(temp_name)
+        
     with wrapper.load_lib(ver_path) as (df, dt): dt.objects = df.objects
+    
     for ob in wrapper.get_all_objs():
         if ob.name not in existing:
+            ob.name = name
+            if ob.data: ob.data.name = name
+            
+            if os.path.exists(lib_path):
+                os.remove(lib_path)
             write_obj(ob, lib_path, tag)
             wrapper.remove_obj(ob)
+            
+    # Restore live object name safely
+    if temp_name in wrapper.get_all_objs():
+        wrapper.get_all_objs()[temp_name].name = name
 
 # === ACTIONS (Called by UI) ===
 def setup_lib(obj, filepath):
@@ -172,10 +190,11 @@ def save_version(obj):
     new_ver = bump_ver(get_ver(obj)) if get_ver(obj) else data.INITIAL_VERSION
     v_str = str_ver(new_ver)
     
-    write_obj(obj, get_version_path(name, v_str, root)) # Plain save to versions dir
+    write_obj(obj, get_version_path(name, v_str, root))
     
     validate_lib_file(lib, name)
-    write_obj(obj, lib, cat) # Marked save to library
+    if os.path.exists(lib): os.remove(lib)
+    write_obj(obj, lib, cat)
     
     set_ver(obj, new_ver)
     wrapper.refresh_assets()
@@ -187,7 +206,7 @@ def highlight_version(obj, v_str):
     ver_path = get_version_path(name, v_str, wrapper.get_prefs().lib_path)
     
     validate_lib_file(lib, name)
-    sync_file_to_lib(ver_path, lib, get_cat(obj))
+    sync_file_to_lib(ver_path, lib, name, get_cat(obj))
     wrapper.refresh_assets()
     return data.INFO_HIGHLIGHTED.format(name, v_str)
 

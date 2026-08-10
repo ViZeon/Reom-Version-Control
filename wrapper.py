@@ -50,4 +50,4 @@ def refresh_assets():
                     with bpy.context.temp_override(window=w, area=a):
                         bpy.ops.asset.library_refresh()
         return None  # Unregister timer
-    bpy.app.timers.register(_refresh, first_interval=0.1)
+    bpy.app.timers.register(_refresh, first_interval=0.2)
