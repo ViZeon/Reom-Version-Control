@@ -1,158 +1,132 @@
 """UI logic (draw, invoke, execute) lives here."""
+import bpy, os
+from . import wrapper, functions, data
 
-import bpy
-from . import wrapper, functions
-from . import data
+def _report(op, msg, type='ERROR'):
+    op.report({type}, msg)
+    return {'CANCELLED'}
 
 class REOM_VC_OT_startup(bpy.types.Operator):
-    bl_idname = data.OP_STARTUP_ID
-    bl_label = data.OP_STARTUP_LABEL
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=300)
-    def draw(self, context):
-        self.layout.label(text=data.OP_STARTUP_TEXT)
-        self.layout.prop(wrapper.get_prefs(), data.PREF_PROP_LIB_PATH)
-    def execute(self, context):
-        return {'FINISHED'}
+    bl_idname = data.OP_STARTUP
+    bl_label = "Reom VC"
+    def invoke(self, ctx, ev): return ctx.window_manager.invoke_props_dialog(self, width=300)
+    def draw(self, ctx):
+        ctx.layout.label(text="VC is ready.")
+        ctx.layout.prop(wrapper.get_prefs(), "lib_path")
+    def execute(self, ctx): return {'FINISHED'}
 
-class REOM_VC_OT_setup_lib_file(bpy.types.Operator):
-    bl_idname = data.OP_SETUP_LIB_FILE_ID
-    bl_label = data.OP_SETUP_LIB_FILE_LABEL
-    filepath: bpy.props.StringProperty(name="Library File", subtype='FILE_PATH')
-
-    def invoke(self, context, event):
-        obj = wrapper.get_active_object()
-        if not obj: return self._cancel(data.ERROR_NO_OBJECT)
+class REOM_VC_OT_setup(bpy.types.Operator):
+    bl_idname = data.OP_SETUP
+    bl_label = "Setup Lib File"
+    filepath: bpy.props.StringProperty(subtype='FILE_PATH')
+    
+    def invoke(self, ctx, ev):
+        obj = wrapper.get_active_obj()
+        if not obj: return _report(self, data.ERR_NO_OBJ)
         if not self.filepath:
-            self.filepath = functions.file_build_lib_path(functions.mesh_get_name(obj), wrapper.get_prefs().lib_path)
-        return context.window_manager.invoke_props_dialog(self, width=400)
-
-    def draw(self, context):
-        self.layout.label(text=data.OP_SETUP_LIB_FILE_TEXT)
-        self.layout.prop(self, "filepath")
-
-    def execute(self, context):
-        path = functions.file_prepare_lib_path(wrapper.abspath(self.filepath))
-        if not functions.file_exists(path): wrapper.save_as_mainfile(path)
-        functions.mesh_set_lib_file(wrapper.get_active_object(), path)
-        self.report({'INFO'}, f"Library file set: {path}")
-        return {'FINISHED'}
-
-    def _cancel(self, msg):
-        self.report({'ERROR'}, msg)
-        return {'CANCELLED'}
+            self.filepath = functions.file_get_lib_path(functions.mesh_get_name(obj), wrapper.get_prefs().lib_path)
+        return ctx.window_manager.invoke_props_dialog(self, width=400)
+        
+    def draw(self, ctx):
+        ctx.layout.label(text="Select library file")
+        ctx.layout.prop(self, "filepath")
+        
+    def execute(self, ctx):
+        path = functions.file_prepare_path(wrapper.abspath(self.filepath))
+        if not os.path.exists(path): wrapper.save_main(path)
+        functions.mesh_set_lib(wrapper.get_active_obj(), path)
+        return _report(self, f"Lib set: {path}", 'INFO')
 
 class REOM_VC_OT_save(bpy.types.Operator):
-    bl_idname = data.OP_SAVE_ID
-    bl_label = data.OP_SAVE_LABEL
-    def execute(self, context):
-        obj = wrapper.get_active_object()
-        if not obj: return self._cancel(data.ERROR_NO_OBJECT)
+    bl_idname = data.OP_SAVE
+    bl_label = "Save Version"
+    
+    def execute(self, ctx):
+        obj = wrapper.get_active_obj()
+        if not obj: return _report(self, data.ERR_NO_OBJ)
         
-        lib_file = functions.mesh_get_lib_file(obj)
+        lib_file = functions.mesh_get_lib(obj)
         if not lib_file:
-            wrapper.invoke_operator(data.OP_SETUP_LIB_FILE_ID)
+            wrapper.invoke(data.OP_SETUP)
             return {'CANCELLED'}
         
         mesh_name = functions.mesh_get_name(obj)
         root = wrapper.get_prefs().lib_path
-        current_ver = functions.mesh_get_version(obj)
-        new_ver = functions.version_bump(current_ver) if current_ver else (1, 0, 0)
-        ver_str = functions.version_to_string(new_ver)
+        cur_ver = functions.mesh_get_ver(obj)
+        new_ver = functions.ver_bump(cur_ver) if cur_ver else (1, 0, 0)
+        v_str = functions.ver_str(new_ver)
         
-        functions.file_ensure_versions_folder(mesh_name, root)
-        functions.library_write_object(obj, functions.file_build_version_path(mesh_name, ver_str, root))
-        functions.library_update_from_object(obj, lib_file, functions.mesh_get_tag(obj))
-        functions.mesh_set_version(obj, new_ver)
-        
-        self.report({'INFO'}, f"Saved {mesh_name} {ver_str}")
-        return {'FINISHED'}
-
-    def _cancel(self, msg):
-        self.report({'ERROR'}, msg)
-        return {'CANCELLED'}
+        ver_path = functions.file_get_version_path(mesh_name, v_str, root)
+        functions.lib_write(obj, ver_path)
+        functions.lib_update(obj, lib_file, functions.mesh_get_tag(obj))
+        functions.mesh_set_ver(obj, new_ver)
+        return _report(self, f"Saved {mesh_name} {v_str}", 'INFO')
 
 class REOM_VC_OT_highlight(bpy.types.Operator):
-    bl_idname = data.OP_HIGHLIGHT_ID
-    bl_label = data.OP_HIGHLIGHT_LABEL
+    bl_idname = data.OP_HIGHLIGHT
+    bl_label = "Highlight"
     version_str: bpy.props.StringProperty()
-
-    def invoke(self, context, event):
-        if self.version_str: return self.execute(context)
-        obj = wrapper.get_active_object()
-        if not obj: return self._cancel(data.ERROR_NO_OBJECT)
+    
+    def invoke(self, ctx, ev):
+        if self.version_str: return self.execute(ctx)
+        obj = wrapper.get_active_obj()
+        if not obj: return _report(self, data.ERR_NO_OBJ)
         if not functions.file_scan_versions(functions.mesh_get_name(obj), wrapper.get_prefs().lib_path):
-            return self._cancel("No versions found")
-        return context.window_manager.invoke_props_dialog(self, width=300)
-
-    def draw(self, context):
-        vers = functions.file_scan_versions(functions.mesh_get_name(obj), wrapper.get_prefs().lib_path)
-        self.layout.label(text="Pick version to highlight:")
-        for v in vers:
-            op = self.layout.operator(data.OP_HIGHLIGHT_ID, text=functions.version_to_string(v))
-            op.version_str = functions.version_to_string(v)
-
-    def execute(self, context):
-        obj = wrapper.get_active_object()
-        lib_file = functions.mesh_get_lib_file(obj)
-        if not lib_file: return self._cancel(data.ERROR_NO_LIB_FILE)
+            return _report(self, "No versions found")
+        return ctx.window_manager.invoke_props_dialog(self, width=300)
         
-        ver_path = functions.file_build_version_path(functions.mesh_get_name(obj), self.version_str, wrapper.get_prefs().lib_path)
-        functions.library_update_from_file(ver_path, lib_file, functions.mesh_get_tag(obj))
-        self.report({'INFO'}, f"Highlighted {functions.mesh_get_name(obj)} {self.version_str}")
-        return {'FINISHED'}
+    def draw(self, ctx):
+        vers = functions.file_scan_versions(functions.mesh_get_name(wrapper.get_active_obj()), wrapper.get_prefs().lib_path)
+        ctx.layout.label(text="Pick version:")
+        for v in vers:
+            op = ctx.layout.operator(data.OP_HIGHLIGHT, text=functions.ver_str(v))
+            op.version_str = functions.ver_str(v)
+            
+    def execute(self, ctx):
+        obj = wrapper.get_active_obj()
+        lib_file = functions.mesh_get_lib(obj)
+        if not lib_file: return _report(self, data.ERR_NO_LIB)
+        
+        mesh_name = functions.mesh_get_name(obj)
+        ver_path = functions.file_get_version_path(mesh_name, self.version_str, wrapper.get_prefs().lib_path)
+        functions.lib_promote_from_file(ver_path, lib_file, functions.mesh_get_tag(obj))
+        return _report(self, f"Highlighted {mesh_name} {self.version_str}", 'INFO')
 
-    def _cancel(self, msg):
-        self.report({'ERROR'}, msg)
-        return {'CANCELLED'}
-
-class REOM_VC_OT_set_tag(bpy.types.Operator):
-    bl_idname = data.OP_SET_TAG_ID
-    bl_label = data.OP_SET_TAG_LABEL
+class REOM_VC_OT_tag(bpy.types.Operator):
+    bl_idname = data.OP_TAG
+    bl_label = "Set Tag"
     tag: bpy.props.StringProperty()
-
-    def invoke(self, context, event):
-        if self.tag: return self.execute(context)
-        return context.window_manager.invoke_props_dialog(self, width=300)
-
-    def draw(self, context):
+    
+    def invoke(self, ctx, ev):
+        return self.execute(ctx) if self.tag else ctx.window_manager.invoke_props_dialog(self, width=300)
+        
+    def draw(self, ctx):
         tags = functions.tag_parse(wrapper.get_prefs().tags)
-        self.layout.prop(self, "tag")
+        ctx.layout.prop(self, "tag")
         if tags:
-            self.layout.label(text="Existing tags:")
+            ctx.layout.label(text="Existing:")
             for t in tags:
-                op = self.layout.operator(data.OP_SET_TAG_ID, text=t)
+                op = ctx.layout.operator(data.OP_TAG, text=t)
                 op.tag = t
-
-    def execute(self, context):
-        obj = wrapper.get_active_object()
-        if not obj: return self._cancel(data.ERROR_NO_OBJECT)
+                
+    def execute(self, ctx):
+        obj = wrapper.get_active_obj()
+        if not obj: return _report(self, data.ERR_NO_OBJ)
         functions.mesh_set_tag(obj, self.tag)
-        self.report({'INFO'}, f"Tag set: {self.tag}")
-        return {'FINISHED'}
+        return _report(self, f"Tag set: {self.tag}", 'INFO')
 
-    def _cancel(self, msg):
-        self.report({'ERROR'}, msg)
-        return {'CANCELLED'}
-
-class REOM_VC_OT_test_scan(bpy.types.Operator):
-    bl_idname = data.OP_TEST_SCAN_ID
-    bl_label = data.OP_TEST_SCAN_LABEL
-    def execute(self, context):
-        obj = wrapper.get_active_object()
-        if not obj:
-            print("No active object selected")
-            return {'CANCELLED'}
+class REOM_VC_OT_test(bpy.types.Operator):
+    bl_idname = data.OP_TEST
+    bl_label = "Test Scan"
+    def execute(self, ctx):
+        obj = wrapper.get_active_obj()
+        if not obj: print("No obj"); return {'CANCELLED'}
         
         mesh_name = functions.mesh_get_name(obj)
         lib_path = wrapper.get_prefs().lib_path
-        if not lib_path:
-            print("No library path set in preferences")
-            return {'CANCELLED'}
+        if not lib_path: print("No lib path"); return {'CANCELLED'}
         
         vers = functions.file_scan_versions(mesh_name, lib_path)
-        if vers:
-            print(f"Mesh '{mesh_name}' has versions: {', '.join(functions.version_to_string(v) for v in vers)}")
-        else:
-            print(f"Mesh '{mesh_name}' has no versions in library")
+        if vers: print(f"Mesh '{mesh_name}' versions: {', '.join(functions.ver_str(v) for v in vers)}")
+        else: print(f"Mesh '{mesh_name}' has no versions")
         return {'FINISHED'}
