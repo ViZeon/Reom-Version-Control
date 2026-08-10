@@ -7,8 +7,8 @@ class ReomPrefs(bpy.types.AddonPreferences):
     tags: bpy.props.StringProperty(name="Tags", default=data.DEFAULT_TAGS)
     
     def draw(self, ctx):
-        ctx.layout.prop(self, "lib_path")
-        ctx.layout.prop(self, "tags")
+        self.layout.prop(self, "lib_path")
+        self.layout.prop(self, "tags")
 
 class REOM_VC_PT_main(bpy.types.Panel):
     bl_label = "Reom VC"
@@ -18,7 +18,7 @@ class REOM_VC_PT_main(bpy.types.Panel):
     bl_category = "Reom"
 
     def draw(self, ctx):
-        l = ctx.layout
+        l = self.layout
         obj = wrapper.get_active_obj()
         if not obj: return
         

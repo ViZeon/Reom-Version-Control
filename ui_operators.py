@@ -11,8 +11,8 @@ class REOM_VC_OT_startup(bpy.types.Operator):
     bl_label = "Reom VC"
     def invoke(self, ctx, ev): return ctx.window_manager.invoke_props_dialog(self, width=300)
     def draw(self, ctx):
-        ctx.layout.label(text="VC is ready.")
-        ctx.layout.prop(wrapper.get_prefs(), "lib_path")
+        self.layout.label(text="VC is ready.")
+        self.layout.prop(wrapper.get_prefs(), "lib_path")
     def execute(self, ctx): return {'FINISHED'}
 
 class REOM_VC_OT_setup(bpy.types.Operator):
@@ -28,8 +28,8 @@ class REOM_VC_OT_setup(bpy.types.Operator):
         return ctx.window_manager.invoke_props_dialog(self, width=400)
         
     def draw(self, ctx):
-        ctx.layout.label(text="Select library file")
-        ctx.layout.prop(self, "filepath")
+        self.layout.label(text="Select library file")
+        self.layout.prop(self, "filepath")
         
     def execute(self, ctx):
         path = functions.file_prepare_path(wrapper.abspath(self.filepath))
@@ -77,9 +77,9 @@ class REOM_VC_OT_highlight(bpy.types.Operator):
         
     def draw(self, ctx):
         vers = functions.file_scan_versions(functions.mesh_get_name(wrapper.get_active_obj()), wrapper.get_prefs().lib_path)
-        ctx.layout.label(text="Pick version:")
+        self.layout.label(text="Pick version:")
         for v in vers:
-            op = ctx.layout.operator(data.OP_HIGHLIGHT, text=functions.ver_str(v))
+            op = self.layout.operator(data.OP_HIGHLIGHT, text=functions.ver_str(v))
             op.version_str = functions.ver_str(v)
             
     def execute(self, ctx):
@@ -102,11 +102,11 @@ class REOM_VC_OT_tag(bpy.types.Operator):
         
     def draw(self, ctx):
         tags = functions.tag_parse(wrapper.get_prefs().tags)
-        ctx.layout.prop(self, "tag")
+        self.layout.prop(self, "tag")
         if tags:
-            ctx.layout.label(text="Existing:")
+            self.layout.label(text="Existing:")
             for t in tags:
-                op = ctx.layout.operator(data.OP_TAG, text=t)
+                op = self.layout.operator(data.OP_TAG, text=t)
                 op.tag = t
                 
     def execute(self, ctx):
