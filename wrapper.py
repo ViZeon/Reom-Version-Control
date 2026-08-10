@@ -74,8 +74,11 @@ def register_keymap(op_id, key, mods, prop_name=None, prop_val=None):
     wm = bpy.context.window_manager
     if not wm.keyconfigs.addon: return
     
-    # space_type='VIEW_3D' guarantees it shows up in the 3D View keymaps and works reliably
-    km = wm.keyconfigs.addon.keymaps.new(name=data.KEYMAP_NAME, space_type='VIEW_3D', region_type='WINDOW')
+    # Attach to the built-in 3D View keymap so it shows up in preferences search
+    km = wm.keyconfigs.addon.keymaps.get("3D View")
+    if not km:
+        km = wm.keyconfigs.addon.keymaps.new(name="3D View", space_type='VIEW_3D', region_type='WINDOW')
+        
     kmi = km.keymap_items.new(op_id, key, 'PRESS', 
                               shift=data.MOD_SHIFT in mods, 
                               alt=data.MOD_ALT in mods, 
@@ -92,7 +95,6 @@ def unregister_keymaps():
     for km, kmi in addon_keymaps:
         try:
             km.keymap_items.remove(kmi)
-            wm.keyconfigs.addon.keymaps.remove(km)
         except:
             pass
             
