@@ -1,4 +1,5 @@
 import os
+import shutil
 from .. import wrapper, data
 from ..utils.logger import get_logger
 from . import state
@@ -43,7 +44,6 @@ def scan_versions(name, path):
     if mode == data.MODE_VER:
         pref, suff = f"{name}{data.VER_SEP}", data.BLEND_EXT
         for f in os.listdir(vdir):
-            # Ignore backup folders
             if f.startswith(data.BACKUP_PREFIX): continue
             if f.startswith(pref) and f.endswith(suff) and not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT):
                 try: vers.append(tuple(map(int, f[len(pref):-len(suff)].split(data.VER_SEP))))
@@ -51,7 +51,6 @@ def scan_versions(name, path):
     else:
         pref, suff = f"{name}{data.VER_SEP}", f"{data.PACKED_SUFFIX}{data.BLEND_EXT}"
         for f in os.listdir(vdir):
-            # Ignore backup folders
             if f.startswith(data.BACKUP_PREFIX): continue
             if f.startswith(pref) and f.endswith(suff):
                 fpath = os.path.join(vdir, f)
@@ -88,9 +87,17 @@ def migrate_all_versions(root, new_mode):
         asset_dir = os.path.join(vdir, asset_name)
         if not os.path.isdir(asset_dir): continue
         
+        # 0. Create a full snapshot backup of ALL active files before touching anything
+        active_files = [f for f in os.listdir(asset_dir) if not f.startswith(data.BACKUP_PREFIX) and f.endswith(data.BLEND_EXT)]
+        if active_files:
+            backup_dir = os.path.join(asset_dir, f"{data.BACKUP_PREFIX}migration")
+            os.makedirs(backup_dir, exist_ok=True)
+            for f in active_files:
+                shutil.copy2(os.path.join(asset_dir, f), os.path.join(backup_dir, f))
+            log.info(f"Created migration snapshot in {backup_dir}")
+        
         # 1. Unpack any existing packed files to individual files
         for f in list(os.listdir(asset_dir)):
-            # Skip backup folders, they should be left alone!
             if f.startswith(data.BACKUP_PREFIX): continue
             if not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT): continue
             fpath = os.path.join(asset_dir, f)
@@ -106,7 +113,7 @@ def migrate_all_versions(root, new_mode):
                     ind_path = os.path.join(asset_dir, f"{ob.name}{data.BLEND_EXT}")
                     blocks = {ob, ob.data} if ob.data else {ob}
                     blocks.update(wrapper.get_mats(ob))
-                    # Use REPLACE to cleanly overwrite any half-written files from previous failed migrations
+                    # Use REPLACE to cleanly overwrite any half-written files
                     safe_write(ind_path, blocks, data.MODE_REPLACE)
                     wrapper.remove_obj(ob)
                     
@@ -115,7 +122,7 @@ def migrate_all_versions(root, new_mode):
         if new_mode == data.MODE_VER: continue
         
         # 2. Group individual files and repack them
-        groups = {} # group_key -> [list of (filepath, v_tuple)]
+        groups = {}
         for f in os.listdir(asset_dir):
             if f.startswith(data.BACKUP_PREFIX): continue
             if not f.endswith(data.BLEND_EXT): continue
@@ -163,7 +170,8 @@ def migrate_all_versions(root, new_mode):
                 if ob.data: blocks.add(ob.data)
                 blocks.update(wrapper.get_mats(ob))
                 
-            wrapper.write_lib(packed_path, blocks)
+            # FIX: Use safe_write instead of wrapper.write_lib to prevent .blend1 temp files
+            safe_write(packed_path, blocks, data.MODE_REPLACE)
             log.info(f"Packed {len(loaded_objs)} versions into {packed_path}")
             
             for ob in loaded_objs: wrapper.remove_obj(ob)
