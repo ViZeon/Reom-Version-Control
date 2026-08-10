@@ -3,12 +3,10 @@ from . import functions, wrapper, data
 
 class ReomPrefs(bpy.types.AddonPreferences):
     bl_idname = __package__
-    lib_path: bpy.props.StringProperty(name=data.PREF_LIB_LABEL, subtype=data.SUBTYPE_DIR)
-    tags: bpy.props.StringProperty(name=data.PREF_TAGS_LABEL, default=data.DEFAULT_TAGS)
+    lib_path: bpy.props.StringProperty(name="Library Path", subtype=data.SUBTYPE_DIR)
     
     def draw(self, ctx):
         self.layout.prop(self, data.PREF_LIB)
-        self.layout.prop(self, data.PREF_TAGS)
 
 class REOM_VC_PT_main(bpy.types.Panel):
     bl_label = data.PANEL_LABEL
@@ -24,11 +22,11 @@ class REOM_VC_PT_main(bpy.types.Panel):
         
         name = functions.get_name(obj)
         ver = functions.get_ver(obj)
-        tag = functions.get_tag(obj)
+        cat = functions.get_cat_name(obj)
         
         l.label(text=f"{data.TEXT_MESH}{name}")
         if ver: l.label(text=f"{data.TEXT_VERSION}{functions.str_ver(ver)}")
-        if tag: l.label(text=f"{data.TEXT_TAG}{tag}")
+        if cat: l.label(text=f"{data.TEXT_CAT}{cat}")
         
         vers = functions.scan_versions(name, wrapper.get_prefs().lib_path)
         if vers:
@@ -43,4 +41,4 @@ class REOM_VC_PT_main(bpy.types.Panel):
         l.operator(data.OP_TEST)
         l.operator(data.OP_SAVE)
         l.operator(data.OP_HIGHLIGHT)
-        l.operator(data.OP_TAG)
+        l.operator(data.OP_SETUP_CAT)

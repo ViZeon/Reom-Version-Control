@@ -21,16 +21,14 @@ def get_name(obj): return wrapper.get_prop(obj, data.P_NAME) or obj.name
 def get_ver(obj):
     v = wrapper.get_prop(obj, data.P_VER)
     return tuple(map(int, v.split(data.VER_SEP))) if v else None
-def get_tag(obj): return wrapper.get_prop(obj, data.P_TAG)
 def get_lib(obj): return wrapper.get_prop(obj, data.P_LIB)
+def get_cat(obj): return wrapper.get_prop(obj, data.P_CAT)
 
 def set_ver(obj, v): wrapper.set_prop(obj, data.P_VER, data.VER_SEP.join(map(str, v)))
-def set_tag(obj, t): wrapper.set_prop(obj, data.P_TAG, t)
 def set_lib(obj, p): wrapper.set_prop(obj, data.P_LIB, p)
+def set_cat(obj, cid): wrapper.set_prop(obj, data.P_CAT, cid)
 
 # === MATH & PARSING ===
-def parse_tags(s): return [t.strip() for t in s.split(data.TAG_SEP)] if s else []
-def tag_to_catalog(t): return str(uuid.uuid5(data.NAMESPACE, t))
 def bump_ver(v): return (v[0], v[1], v[2] + 1)
 def str_ver(v): return data.VER_SEP.join(map(str, v))
 
@@ -71,23 +69,47 @@ def prepare_path(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
 
+# === CATEGORIES (Asset Browser Catalogs) ===
+def read_cats(lib_path):
+    if not lib_path: return {}
+    fpath = os.path.join(os.path.dirname(wrapper.abspath(lib_path)), data.CATALOG_FILE)
+    if not os.path.exists(fpath): return {}
+    cats = {}
+    with open(fpath, 'r') as f:
+        for line in f:
+            if line.startswith('#') or not line.strip(): continue
+            parts = line.split(':', 2)
+            if len(parts) == 3:
+                cats[parts[2].strip()] = parts[0].strip()
+    return cats
+
+def get_cat_name(obj):
+    cid = get_cat(obj)
+    if not cid: return None
+    cats = read_cats(get_lib(obj))
+    for name, u in cats.items():
+        if u == cid: return name
+    return None
+
+def add_cat(lib_path, name):
+    cid = str(uuid.uuid5(data.NAMESPACE, name))
+    fpath = os.path.join(os.path.dirname(wrapper.abspath(lib_path)), data.CATALOG_FILE)
+    with open(fpath, 'a') as f:
+        f.write(f"{cid}:{name}:{name}\n")
+    return cid
+
 # === LIBRARY SYNC ===
 def write_obj(obj, path):
     blocks = {obj, obj.data} if obj.data else {obj}
     blocks.update(wrapper.get_mats(obj))
     wrapper.write_lib(path, blocks)
 
-def sync_to_lib(obj, lib_path, tag=None):
-    if not wrapper.has_asset(obj): wrapper.mark_asset(obj)
-    if tag and wrapper.has_asset(obj): wrapper.set_catalog(obj, tag_to_catalog(tag))
-    write_obj(obj, lib_path)
-
 def sync_file_to_lib(ver_path, lib_path, tag=None):
     existing = set(wrapper.get_all_objs().keys())
     with wrapper.load_lib(ver_path) as (df, dt): dt.objects = df.objects
     for ob in wrapper.get_all_objs():
         if ob.name not in existing:
-            sync_to_lib(ob, lib_path, tag)
+            write_obj(ob, lib_path)
             wrapper.remove_obj(ob)
 
 # === ACTIONS (Called by UI) ===
@@ -101,11 +123,17 @@ def save_version(obj):
     lib = get_lib(obj)
     name = get_name(obj)
     root = wrapper.get_prefs().lib_path
+    cat = get_cat(obj)
     new_ver = bump_ver(get_ver(obj)) if get_ver(obj) else data.INITIAL_VERSION
     v_str = str_ver(new_ver)
     
-    write_obj(obj, get_version_path(name, v_str, root))
-    sync_to_lib(obj, lib, get_tag(obj))
+    write_obj(obj, get_version_path(name, v_str, root)) # Plain save to versions dir
+    
+    wrapper.mark_asset(obj)
+    wrapper.set_catalog(obj, cat)
+    write_obj(obj, lib) # Marked save to library
+    wrapper.clear_asset(obj) # Clean live object
+    
     set_ver(obj, new_ver)
     return data.INFO_SAVED.format(name, v_str)
 
@@ -113,12 +141,12 @@ def highlight_version(obj, v_str):
     lib = get_lib(obj)
     name = get_name(obj)
     ver_path = get_version_path(name, v_str, wrapper.get_prefs().lib_path)
-    sync_file_to_lib(ver_path, lib, get_tag(obj))
+    sync_file_to_lib(ver_path, lib, get_cat(obj))
     return data.INFO_HIGHLIGHTED.format(name, v_str)
 
-def assign_tag(obj, tag):
-    set_tag(obj, tag)
-    return data.INFO_TAG_SET.format(tag)
+def assign_cat(obj, cid):
+    set_cat(obj, cid)
+    return data.INFO_CAT_SET.format(cid)
 
 def scan_info(obj):
     name = get_name(obj)

@@ -95,3 +95,19 @@ from .ui_operators import REOM_VC_OT_force
 ```python
 l.operator(data.OP_FORCE)
 ```
+
+---
+
+### Documentation Rules (The "Lean & ELI5" Standard)
+
+When writing docstrings, readmes, or dev docs for this codebase, adhere strictly to these rules:
+
+1. **Maximum Lexical Density:** Zero fluff. No "This function is responsible for...". Just say what it is. `"""Save object and data blocks to a .blend file."""` 
+2. **ELI5, but Technical:** Explain the *what* and *why* in plain English, but assume the reader knows basic programming terms (adapters, pure functions, blocks). A newcomer should instantly understand the intent without reading the code.
+3. **Action-Oriented:** Start descriptions with verbs. `Save`, `Load`, `Bump`, `Sync`.
+4. **No Stating the Obvious:** Don't document that a function returns a string if the function is named `get_string`. Only document non-obvious side effects (e.g., "Deletes original objects after load").
+5. **File Headers:** Every file gets a 1-line docstring defining its architectural role and the rules it obeys.
+   * `"""Thin Blender API adapters. No logic."""` (wrapper.py)
+   * `"""Pure functions and business logic. No bpy. No hardcoded constants."""` (functions.py)
+   * `"""UI logic for Operators. No business logic."""` (ui_operators.py)
+6. **Example Formats:** When showing how to add a feature, use the raw, dense format. Show the file name, the exact snippet, and move on. No long-winded explanations between code blocks.

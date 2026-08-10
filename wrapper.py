@@ -30,6 +30,7 @@ def timer(cb, t): bpy.app.timers.register(cb, first_interval=t)
 def override(win, area): return bpy.context.temp_override(window=win, area=area)
 
 def mark_asset(obj): obj.asset_mark()
+def clear_asset(obj): obj.asset_clear()
 def set_catalog(obj, cid): 
     if obj.asset_data: obj.asset_data.catalog_id = cid
 

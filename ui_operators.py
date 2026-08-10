@@ -6,6 +6,14 @@ def _report(op, msg, type=data.REPORT_ERROR):
     op.report({type}, msg)
     return {data.OP_CANCEL}
 
+def _get_cats(self, context):
+    obj = wrapper.get_active_obj()
+    if not obj: return []
+    lib = functions.get_lib(obj)
+    if not lib: return []
+    cats = functions.read_cats(lib)
+    return [(cid, name, name) for name, cid in cats.items()]
+
 class REOM_VC_OT_startup(bpy.types.Operator):
     bl_idname = data.OP_STARTUP
     bl_label = data.PANEL_LABEL
@@ -37,6 +45,33 @@ class REOM_VC_OT_setup(bpy.types.Operator):
         if not obj: return _report(self, data.ERR_NO_OBJ)
         return _report(self, functions.setup_lib(obj, self.filepath), data.REPORT_INFO)
 
+class REOM_VC_OT_setup_cat(bpy.types.Operator):
+    bl_idname = data.OP_SETUP_CAT
+    bl_label = data.OP_SETUP_CAT_LABEL
+    
+    existing: bpy.props.EnumProperty(items=_get_cats, name=data.TEXT_EXISTING)
+    new_cat: bpy.props.StringProperty(name=data.TEXT_NEW_CAT)
+    
+    def invoke(self, ctx, ev): return ctx.window_manager.invoke_props_dialog(self, width=data.WIDTH_SMALL)
+        
+    def draw(self, ctx):
+        self.layout.label(text=data.TEXT_SELECT_CAT)
+        self.layout.prop(self, data.PROP_EXISTING)
+        self.layout.prop(self, data.PROP_NEW_CAT)
+        
+    def execute(self, ctx):
+        obj = wrapper.get_active_obj()
+        if not obj: return _report(self, data.ERR_NO_OBJ)
+        if self.new_cat:
+            cid = functions.add_cat(functions.get_lib(obj), self.new_cat)
+        elif self.existing:
+            cid = self.existing
+        else:
+            return _report(self, data.ERR_NO_CAT)
+        
+        functions.assign_cat(obj, cid)
+        return _report(self, functions.save_version(obj), data.REPORT_INFO)
+
 class REOM_VC_OT_save(bpy.types.Operator):
     bl_idname = data.OP_SAVE
     bl_label = data.OP_SAVE_LABEL
@@ -45,8 +80,9 @@ class REOM_VC_OT_save(bpy.types.Operator):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
         if not functions.get_lib(obj):
-            wrapper.invoke(data.OP_SETUP)
-            return {data.OP_CANCEL}
+            wrapper.invoke(data.OP_SETUP); return {data.OP_CANCEL}
+        if not functions.get_cat(obj):
+            wrapper.invoke(data.OP_SETUP_CAT); return {data.OP_CANCEL}
         return _report(self, functions.save_version(obj), data.REPORT_INFO)
 
 class REOM_VC_OT_highlight(bpy.types.Operator):
@@ -74,28 +110,6 @@ class REOM_VC_OT_highlight(bpy.types.Operator):
         if not obj: return _report(self, data.ERR_NO_OBJ)
         if not functions.get_lib(obj): return _report(self, data.ERR_NO_LIB)
         return _report(self, functions.highlight_version(obj, self.version_str), data.REPORT_INFO)
-
-class REOM_VC_OT_tag(bpy.types.Operator):
-    bl_idname = data.OP_TAG
-    bl_label = data.OP_TAG_LABEL
-    tag: bpy.props.StringProperty()
-    
-    def invoke(self, ctx, ev):
-        return self.execute(ctx) if self.tag else ctx.window_manager.invoke_props_dialog(self, width=data.WIDTH_SMALL)
-        
-    def draw(self, ctx):
-        tags = functions.parse_tags(wrapper.get_prefs().tags)
-        self.layout.prop(self, data.PROP_TAG_UI)
-        if tags:
-            self.layout.label(text=data.TEXT_EXISTING)
-            for t in tags:
-                op = self.layout.operator(data.OP_TAG, text=t)
-                op.tag = t
-                
-    def execute(self, ctx):
-        obj = wrapper.get_active_obj()
-        if not obj: return _report(self, data.ERR_NO_OBJ)
-        return _report(self, functions.assign_tag(obj, self.tag), data.REPORT_INFO)
 
 class REOM_VC_OT_test(bpy.types.Operator):
     bl_idname = data.OP_TEST

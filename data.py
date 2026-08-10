@@ -26,24 +26,23 @@ NAMESPACE = uuid.NAMESPACE_DNS
 V_DIR = "_versions"
 VER_SEP = "_"
 BLEND_EXT = ".blend"
-DEFAULT_TAGS = "Character, Prop, Weapon"
-TAG_SEP = ","
-TAG_JOIN = ", "
+CATALOG_FILE = "blender_assets.cats.txt"
 
 # === PROPERTIES ===
 P_NAME = "reom_vc_name"
 P_VER = "reom_vc_ver"
 P_LIB = "reom_vc_lib"
-P_TAG = "reom_vc_tag"
+P_CAT = "reom_vc_cat"
 PROP_FILEPATH = "filepath"
-PROP_TAG_UI = "tag"
+PROP_EXISTING = "existing"
+PROP_NEW_CAT = "new_cat"
 
 # === UI IDS ===
 OP_STARTUP = "reom_vc.startup"
 OP_SETUP = "reom_vc.setup_lib_file"
 OP_SAVE = "reom_vc.save"
 OP_HIGHLIGHT = "reom_vc.highlight"
-OP_TAG = "reom_vc.set_tag"
+OP_SETUP_CAT = "reom_vc.setup_cat"
 OP_TEST = "reom_vc.test_scan"
 PANEL_ID = "VIEW3D_PT_reom_vc"
 
@@ -52,12 +51,9 @@ PANEL_LABEL = "Reom VC"
 PANEL_CATEGORY = "Reom"
 OP_SETUP_LABEL = "Setup Lib File"
 OP_SAVE_LABEL = "Save Version"
-OP_TAG_LABEL = "Set Tag"
+OP_SETUP_CAT_LABEL = "Set Category"
 OP_TEST_LABEL = "Test Scan"
 PREF_LIB = "lib_path"
-PREF_TAGS = "tags"
-PREF_LIB_LABEL = "Library Path"
-PREF_TAGS_LABEL = "Tags"
 WIDTH_SMALL = 300
 WIDTH_LARGE = 400
 
@@ -65,22 +61,25 @@ WIDTH_LARGE = 400
 TEXT_READY = "VC is ready."
 TEXT_SELECT_LIB = "Select library file"
 TEXT_PICK_VER = "Pick version:"
-TEXT_EXISTING = "Existing:"
 TEXT_HIGHLIGHT = "Highlight"
 TEXT_MESH = "Mesh: "
 TEXT_VERSION = "Version: "
-TEXT_TAG = "Tag: "
+TEXT_CAT = "Category: "
 TEXT_VERSIONS = "Versions:"
 TEXT_NO_VER = "No versions found"
+TEXT_SELECT_CAT = "Select Category"
+TEXT_EXISTING = "Existing:"
+TEXT_NEW_CAT = "New Category:"
 
 # === REPORT TEMPLATES ===
 INFO_LIB_SET = "Lib set: {}"
 INFO_SAVED = "Saved {} {}"
 INFO_HIGHLIGHTED = "Highlighted {} {}"
-INFO_TAG_SET = "Tag set: {}"
+INFO_CAT_SET = "Category set: {}"
 INFO_VER_LIST = "Mesh '{}' versions: {}"
 INFO_NO_VER = "Mesh '{}' has no versions"
 
 # === ERROR MESSAGES ===
 ERR_NO_OBJ = "No object selected"
 ERR_NO_LIB = "No library file set"
+ERR_NO_CAT = "No category selected"
