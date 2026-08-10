@@ -1,7 +1,7 @@
 import os
 from .. import wrapper, data
 from ..utils.logger import get_logger
-from .state import get_name, get_storage_mode
+from . import state
 
 log = get_logger()
 
@@ -36,7 +36,7 @@ def scan_versions(name, path):
     vdir = os.path.join(root, data.V_DIR, name)
     if not os.path.exists(vdir): return []
     
-    mode = get_storage_mode()
+    mode = state.get_storage_mode()
     vers = []
     
     if mode == data.MODE_VER:
@@ -64,7 +64,7 @@ def scan_versions(name, path):
 def get_default_lib_path(obj):
     root = wrapper.get_prefs().lib_path
     if not root: return ""
-    return os.path.join(os.path.expanduser(root), f"{get_name(obj)}{data.BLEND_EXT}")
+    return os.path.join(os.path.expanduser(root), f"{state.get_name(obj)}{data.BLEND_EXT}")
 
 def prepare_path(path):
     if not path.endswith(data.BLEND_EXT): path += data.BLEND_EXT
@@ -101,7 +101,6 @@ def migrate_all_versions(root, new_mode):
                     blocks.update(wrapper.get_mats(ob))
                     wrapper.write_lib(ind_path, blocks)
                     wrapper.remove_obj(ob)
-                    existing.add(ob.name)
                     
             os.remove(fpath)
             

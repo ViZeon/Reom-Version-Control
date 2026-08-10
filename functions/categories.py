@@ -1,6 +1,6 @@
 import os, uuid
 from .. import wrapper, data
-from .state import get_cat, get_lib
+from . import state
 from .gateway import safe_write
 
 def read_cats(lib_path):
@@ -19,9 +19,9 @@ def read_cats(lib_path):
     return cats
 
 def get_cat_name(obj):
-    cid = get_cat(obj)
+    cid = state.get_cat(obj)
     if not cid: return None
-    cats = read_cats(get_lib(obj))
+    cats = read_cats(state.get_lib(obj))
     for name, u in cats.items():
         if u == cid: return name
     return None

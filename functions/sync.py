@@ -78,14 +78,16 @@ def pack_version(obj, name, v_tuple, path):
     loaded_objs = []
     bak_path = f"{path}.bak1"
     if os.path.exists(bak_path):
+        existing = set(wrapper.get_all_objs().keys())
         with wrapper.load_lib(bak_path) as (df, dt):
             obj_names = [n for n in df.objects if n.startswith(name)]
             dt.objects = obj_names
             
-        for ob in wrapper.get_all_objs():
-            if ob.name in obj_names:
+        for ob in list(wrapper.get_all_objs()):
+            if ob.name not in existing:
                 wrapper.make_local(ob)
                 loaded_objs.append(ob)
+                existing.add(ob.name)
                 
     orig_name = obj.name
     orig_data_name = obj.data.name if obj.data else None
