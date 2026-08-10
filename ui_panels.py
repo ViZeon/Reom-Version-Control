@@ -3,10 +3,12 @@ from . import functions, wrapper, data
 
 class ReomPrefs(bpy.types.AddonPreferences):
     bl_idname = __package__
-    lib_path: bpy.props.StringProperty(name=data.TEXT_FILEPATH_LABEL, subtype=data.SUBTYPE_DIR)
+    lib_path: bpy.props.StringProperty(name=data.TEXT_PREF_LIB, subtype=data.SUBTYPE_DIR)
+    storage_mode: bpy.props.EnumProperty(items=data.ITEM_STORAGE_MODES, default=data.MODE_SUB, name=data.TEXT_PREF_STORAGE)
     
     def draw(self, ctx):
         self.layout.prop(self, data.PREF_LIB)
+        self.layout.prop(self, data.PREF_STORAGE)
 
 class REOM_VC_PT_main(bpy.types.Panel):
     bl_label = data.PANEL_LABEL
@@ -36,6 +38,8 @@ class REOM_VC_PT_main(bpy.types.Panel):
         l.label(text=f"{data.TEXT_MESH}{name}")
         if ver: l.label(text=f"{data.TEXT_VERSION}{functions.format_ver_ui(ver)}")
         if cat: l.label(text=f"{data.TEXT_CAT}{cat}")
+        
+        l.prop(wrapper.get_prefs(), data.PREF_STORAGE, text="")
         
         if linked:
             l.box().label(text=data.TEXT_STATE_LINKED)

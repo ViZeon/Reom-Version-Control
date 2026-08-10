@@ -33,6 +33,19 @@ TXT_EXT = ".txt"
 BAK_EXT = ".bak"
 CATALOG_FILE = "blender_assets.cats.txt"
 CATALOG_HEADER = "VERSION 1\n"
+PACKED_SUFFIX = ".versions"
+MAX_BACKUPS = 3
+
+# === STORAGE MODES ===
+MODE_VER = "per_current"
+MODE_SUB = "per_sub"
+MODE_RELEASE = "per_release"
+
+ITEM_STORAGE_MODES = [
+    (MODE_VER, "Per-Current", "Save a new file for every save (e.g., 1_0_0.blend)"),
+    (MODE_SUB, "Per-Sub", "Pack all saves of a sub-version into one file (e.g., 1_0.versions.blend)"),
+    (MODE_RELEASE, "Per-Release", "Pack all saves of a release into one file (e.g., 1.versions.blend)")
+]
 
 # === WRITE MODES ===
 MODE_SAFE = "safe"
@@ -62,6 +75,7 @@ OP_TEST_LABEL = "Test Scan"
 OP_ENTER_EDIT_LABEL = "Enter Edit"
 OP_END_EDIT_LABEL = "End Edit"
 PREF_LIB = "lib_path"
+PREF_STORAGE = "storage_mode"
 WIDTH_SMALL = 300
 WIDTH_LARGE = 400
 
@@ -119,6 +133,8 @@ TEXT_EXISTING = "Existing:"
 TEXT_NEW_CAT = "New Category:"
 TEXT_STATE_LINKED = "Linked (Read-Only)"
 TEXT_STATE_ACTIVE = "Active (Editing)"
+TEXT_PREF_LIB = "Library Path"
+TEXT_PREF_STORAGE = "Storage Mode"
 
 # === BUTTON LABELS ===
 TEXT_SAVE = "Save"

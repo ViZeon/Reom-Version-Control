@@ -21,7 +21,6 @@ def addon_unregister(classes):
     wrapper.unregister_keymaps()
     wrapper.unregister(classes)
 
-
 # === STATE ===
 def get_name(obj):
     name = wrapper.get_prop(obj, data.P_NAME)
@@ -37,6 +36,7 @@ def get_ver(obj):
 def get_lib(obj): return wrapper.get_prop(obj, data.P_LIB)
 def get_cat(obj): return wrapper.get_prop(obj, data.P_CAT)
 def is_linked(obj): return wrapper.is_linked(obj)
+def get_storage_mode(): return wrapper.get_prefs().storage_mode
 
 def set_ver(obj, v): wrapper.set_prop(obj, data.P_VER, data.VER_SEP.join(map(str, v)))
 def set_lib(obj, p): wrapper.set_prop(obj, data.P_LIB, p)
@@ -63,25 +63,50 @@ def find_root(path):
     except: pass
     return None
 
+def get_version_path(name, v_tuple, root, mode):
+    vdir = os.path.join(root, data.V_DIR, name)
+    os.makedirs(vdir, exist_ok=True)
+    
+    if mode == data.MODE_VER:
+        v_str = data.VER_SEP.join(map(str, v_tuple))
+        return os.path.join(vdir, f"{name}{data.VER_SEP}{v_str}{data.BLEND_EXT}")
+    elif mode == data.MODE_SUB:
+        v_str = data.VER_SEP.join(map(str, v_tuple[:2]))
+        return os.path.join(vdir, f"{name}{data.VER_SEP}{v_str}{data.PACKED_SUFFIX}{data.BLEND_EXT}")
+    elif mode == data.MODE_RELEASE:
+        v_str = str(v_tuple[0])
+        return os.path.join(vdir, f"{name}{data.VER_SEP}{v_str}{data.PACKED_SUFFIX}{data.BLEND_EXT}")
+
 def scan_versions(name, path):
     root = find_root(path)
     if not root: return []
     vdir = os.path.join(root, data.V_DIR, name)
     if not os.path.exists(vdir): return []
     
-    pref, suff = f"{name}{data.VER_SEP}", data.BLEND_EXT
+    mode = get_storage_mode()
     vers = []
-    for f in os.listdir(vdir):
-        if f.startswith(pref) and f.endswith(suff):
-            try: vers.append(tuple(map(int, f[len(pref):-len(suff)].split(data.VER_SEP))))
-            except: pass
+    
+    if mode == data.MODE_VER:
+        pref, suff = f"{name}{data.VER_SEP}", data.BLEND_EXT
+        for f in os.listdir(vdir):
+            if f.startswith(pref) and f.endswith(suff) and not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT):
+                try: vers.append(tuple(map(int, f[len(pref):-len(suff)].split(data.VER_SEP))))
+                except: pass
+    else:
+        pref, suff = f"{name}{data.VER_SEP}", f"{data.PACKED_SUFFIX}{data.BLEND_EXT}"
+        for f in os.listdir(vdir):
+            if f.startswith(pref) and f.endswith(suff):
+                fpath = os.path.join(vdir, f)
+                try:
+                    with wrapper.load_lib(fpath) as (df, dt):
+                        for obj_name in df.objects:
+                            if obj_name.startswith(name + data.VER_SEP):
+                                try: vers.append(tuple(map(int, obj_name[len(name)+1:].split(data.VER_SEP))))
+                                except: pass
+                except: pass
+                
     vers.sort()
     return vers
-
-def get_version_path(name, v_str, root):
-    vdir = os.path.join(root, data.V_DIR, name)
-    os.makedirs(vdir, exist_ok=True)
-    return os.path.join(vdir, f"{name}{data.VER_SEP}{v_str}{data.BLEND_EXT}")
 
 def get_default_lib_path(obj):
     root = wrapper.get_prefs().lib_path
@@ -216,7 +241,6 @@ def write_obj(obj, path, name=None, cat=None, mode=data.MODE_REPLACE):
     temp_name = name + data.TEMP_SUFFIX if name else None
     
     if name:
-        # Temporarily move colliding objects/meshes out of the way
         if temp_name and name in wrapper.get_all_objs() and wrapper.get_all_objs()[name] != obj:
             wrapper.get_all_objs()[name].name = temp_name
         if temp_name and obj.data and name in wrapper.get_meshes() and wrapper.get_meshes()[name] != obj.data:
@@ -236,7 +260,6 @@ def write_obj(obj, path, name=None, cat=None, mode=data.MODE_REPLACE):
     if cat:
         wrapper.clear_asset(obj)
         
-    # Restore original names
     if name:
         obj.name = orig_name
         if obj.data and orig_data_name:
@@ -247,6 +270,69 @@ def write_obj(obj, path, name=None, cat=None, mode=data.MODE_REPLACE):
         if temp_name and temp_name in wrapper.get_meshes():
             wrapper.get_meshes()[temp_name].name = name
 
+def backup_packed_file(path):
+    """Cycles up to MAX_BACKUPS copies of a file."""
+    if not os.path.exists(path): return
+    
+    oldest = f"{path}.bak{data.MAX_BACKUPS}"
+    if os.path.exists(oldest): os.remove(oldest)
+    
+    for i in range(data.MAX_BACKUPS - 1, 0, -1):
+        curr = f"{path}.bak{i}"
+        nxt = f"{path}.bak{i+1}"
+        if os.path.exists(curr): os.rename(curr, nxt)
+        
+    os.rename(path, f"{path}.bak1")
+
+def pack_version(obj, name, v_tuple, path):
+    """Packs an object into a single .blend file containing multiple versions."""
+    backup_packed_file(path)
+    
+    # Load existing objects from the backup to avoid file lock conflicts
+    loaded_objs = []
+    bak_path = f"{path}.bak1"
+    if os.path.exists(bak_path):
+        with wrapper.load_lib(bak_path) as (df, dt):
+            obj_names = [n for n in df.objects if n.startswith(name)]
+            dt.objects = obj_names
+            
+        for ob in wrapper.get_all_objs():
+            if ob.name in obj_names:
+                wrapper.make_local(ob)
+                loaded_objs.append(ob)
+                
+    # Temporarily rename live object to its full version string
+    orig_name = obj.name
+    orig_data_name = obj.data.name if obj.data else None
+    v_str = data.VER_SEP.join(map(str, v_tuple))
+    target_name = f"{name}{data.VER_SEP}{v_str}"
+    
+    # Move any colliding objects out of the way
+    if target_name in wrapper.get_all_objs() and wrapper.get_all_objs()[target_name] != obj:
+        wrapper.get_all_objs()[target_name].name = target_name + data.TEMP_SUFFIX
+        
+    obj.name = target_name
+    if obj.data: 
+        if target_name in wrapper.get_meshes() and wrapper.get_meshes()[target_name] != obj.data:
+            wrapper.get_meshes()[target_name].name = target_name + data.TEMP_SUFFIX
+        obj.data.name = target_name
+        
+    blocks = {obj, obj.data} if obj.data else {obj}
+    blocks.update(wrapper.get_mats(obj))
+    for ob in loaded_objs:
+        blocks.add(ob)
+        if ob.data: blocks.add(ob.data)
+        blocks.update(wrapper.get_mats(ob))
+        
+    safe_write(path, blocks, data.MODE_REPLACE)
+    
+    # Restore live obj name
+    obj.name = orig_name
+    if obj.data and orig_data_name: obj.data.name = orig_data_name
+        
+    # Clean up loaded objects
+    for ob in loaded_objs: wrapper.remove_obj(ob)
+
 def sync_file_to_lib(ver_path, lib_path, name, tag=None):
     existing = set(wrapper.get_all_objs().keys())
     
@@ -254,16 +340,36 @@ def sync_file_to_lib(ver_path, lib_path, name, tag=None):
     
     for ob in wrapper.get_all_objs():
         if ob.name not in existing:
-            # write_obj handles renaming to `name` safely
             write_obj(ob, lib_path, name, tag, data.MODE_REPLACE)
             wrapper.remove_obj(ob)
+
+def sync_packed_to_lib(ver_path, lib_path, name, v_str, tag=None):
+    """Extracts a specific version from a packed file and writes it to the library."""
+    existing = set(wrapper.get_all_objs().keys())
+    target_name = f"{name}{data.VER_SEP}{v_str}"
+    
+    live_obj = wrapper.get_active_obj()
+    temp_name = name + data.TEMP_SUFFIX
+    if live_obj and live_obj.name == name:
+        live_obj.name = temp_name
+        existing.remove(name)
+        existing.add(temp_name)
+        
+    with wrapper.load_lib(ver_path) as (df, dt):
+        dt.objects = [target_name] if target_name in df.objects else []
+        
+    for ob in wrapper.get_all_objs():
+        if ob.name not in existing:
+            wrapper.make_local(ob)
+            write_obj(ob, lib_path, name, tag, data.MODE_REPLACE)
+            wrapper.remove_obj(ob)
+            
+    if temp_name in wrapper.get_all_objs():
+        wrapper.get_all_objs()[temp_name].name = name
 
 # === ACTIONS (Called by UI) ===
 def setup_lib(obj, name, filepath):
     path = prepare_path(wrapper.abspath(filepath))
-    
-    # If the file doesn't exist, instantly create it by writing just the object.
-    # This is 100x faster than saving the whole scene via save_as_mainfile.
     if not os.path.exists(path):
         blocks = {obj, obj.data} if obj.data else {obj}
         blocks.update(wrapper.get_mats(obj))
@@ -280,6 +386,7 @@ def save_version(obj, action=data.ACT_SAVE):
     root = wrapper.get_prefs().lib_path
     cat = get_cat(obj)
     cur_ver = get_ver(obj)
+    mode = get_storage_mode()
     
     if not cur_ver:
         new_ver = data.INITIAL_VERSION
@@ -291,8 +398,12 @@ def save_version(obj, action=data.ACT_SAVE):
             case _: new_ver = bump_ver(cur_ver)
             
     v_str = str_ver(new_ver)
+    ver_path = get_version_path(name, new_ver, root, mode)
     
-    write_obj(obj, get_version_path(name, v_str, root), name, mode=data.MODE_SAFE)
+    if mode == data.MODE_VER:
+        write_obj(obj, ver_path, name, mode=data.MODE_SAFE)
+    else:
+        pack_version(obj, name, new_ver, ver_path) # Removed cat to prevent asset marks in version files
     
     validate_lib_file(lib, name)
     write_obj(obj, lib, name, cat, data.MODE_REPLACE)
@@ -304,10 +415,17 @@ def save_version(obj, action=data.ACT_SAVE):
 def set_main_version(obj, v_str):
     lib = get_lib(obj)
     name = get_name(obj)
-    ver_path = get_version_path(name, v_str, wrapper.get_prefs().lib_path)
+    v_tuple = tuple(map(int, v_str.split(data.VER_SEP)))
+    mode = get_storage_mode()
+    ver_path = get_version_path(name, v_tuple, wrapper.get_prefs().lib_path, mode)
     
     validate_lib_file(lib, name)
-    sync_file_to_lib(ver_path, lib, name, get_cat(obj))
+    
+    if mode == data.MODE_VER:
+        sync_file_to_lib(ver_path, lib, name, get_cat(obj))
+    else:
+        sync_packed_to_lib(ver_path, lib, name, v_str, get_cat(obj))
+        
     wrapper.refresh_assets()
     return data.INFO_SET_MAIN.format(name, v_str)
 
