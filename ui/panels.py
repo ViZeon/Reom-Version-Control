@@ -1,5 +1,5 @@
 import bpy
-from . import functions, wrapper, data
+from .. import functions, wrapper, data
 
 def update_storage_mode(self, context):
     """Callback to trigger migration when the preference changes."""
@@ -8,7 +8,7 @@ def update_storage_mode(self, context):
         functions.migrate_all_versions(root, self.storage_mode)
 
 class ReomPrefs(bpy.types.AddonPreferences):
-    bl_idname = __package__
+    bl_idname = __package__.split('.')[0] # Ensure it binds to top-level package
     lib_path: bpy.props.StringProperty(name=data.TEXT_PREF_LIB, subtype=data.SUBTYPE_DIR)
     storage_mode: bpy.props.EnumProperty(
         items=data.ITEM_STORAGE_MODES, 

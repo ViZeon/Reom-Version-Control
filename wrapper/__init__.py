@@ -1,6 +1,6 @@
 """Thin Blender API adapters. No logic."""
 import bpy
-from . import data
+from .. import data
 
 addon_keymaps = []
 
@@ -10,7 +10,9 @@ def register(classes):
 def unregister(classes):
     for c in reversed(classes): bpy.utils.unregister_class(c)
 
-def get_prefs(): return bpy.context.preferences.addons[__package__].preferences
+# Fix: __package__ is "reom_version_control.wrapper", but prefs are stored under "reom_version_control"
+def get_prefs(): return bpy.context.preferences.addons[__package__.split('.')[0]].preferences
+
 def get_active_obj(): return bpy.context.active_object
 def get_all_objs(): return bpy.data.objects
 def get_meshes(): return bpy.data.meshes
@@ -74,7 +76,6 @@ def register_keymap(op_id, key, mods, prop_name=None, prop_val=None):
     wm = bpy.context.window_manager
     if not wm.keyconfigs.addon: return
     
-    # Attach to the built-in 3D View keymap so it shows up in preferences search
     km = wm.keyconfigs.addon.keymaps.get("3D View")
     if not km:
         km = wm.keyconfigs.addon.keymaps.new(name="3D View", space_type='VIEW_3D', region_type='WINDOW')

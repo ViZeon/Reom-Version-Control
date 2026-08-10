@@ -1,4 +1,4 @@
-from .ui_operators import (
+from .operators import (
     REOM_VC_OT_startup,
     REOM_VC_OT_setup,
     REOM_VC_OT_version,
@@ -9,7 +9,7 @@ from .ui_operators import (
     REOM_VC_OT_test,
     REOM_VC_OT_run_tests,
 )
-from .ui_panels import ReomPrefs, REOM_VC_PT_main
+from .panels import ReomPrefs, REOM_VC_PT_main
 
 classes = (
     ReomPrefs,

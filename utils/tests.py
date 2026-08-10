@@ -2,7 +2,8 @@
 import unittest
 import os
 import tempfile
-from . import functions, data
+import sys
+from .. import functions, data
 
 class TestVersionMath(unittest.TestCase):
     def test_bump_ver(self):
@@ -53,6 +54,6 @@ class TestSafetyGateway(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(self.tmpdir, "test.blend.bak1")))
 
 def run_tests():
-    suite = unittest.TestLoader().loadTestsFromModule(__import__(__name__))
+    suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     runner = unittest.TextTestRunner(verbosity=2)
     return runner.run(suite)

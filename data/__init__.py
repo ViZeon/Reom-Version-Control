@@ -58,7 +58,6 @@ ACT_SAVE = "save"
 ACT_STEP = "step"
 ACT_RELEASE = "release"
 
-# === ENUM ITEMS ===
 ITEM_ACTIONS = [
     (ACT_SAVE, "Save", "Save Version"),
     (ACT_STEP, "Step", "Step Sub-Version"),
@@ -72,13 +71,13 @@ OP_SETUP_LABEL = "Setup Lib File"
 OP_VERSION_LABEL = "Version Actions"
 OP_SETUP_CAT_LABEL = "Set Category"
 OP_TEST_LABEL = "Test Scan"
+OP_RUN_TESTS_LABEL = "Run Unit Tests"
 OP_ENTER_EDIT_LABEL = "Enter Edit"
 OP_END_EDIT_LABEL = "End Edit"
 PREF_LIB = "lib_path"
 PREF_STORAGE = "storage_mode"
 WIDTH_SMALL = 300
 WIDTH_LARGE = 400
-OP_RUN_TESTS_LABEL = "Run Unit Tests"
 
 # === UI FORMATS ===
 UI_VER_PREFIX = "v"

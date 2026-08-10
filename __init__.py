@@ -6,7 +6,7 @@ bl_info = {
 }
 
 from . import functions
-from . import registry
+from .ui import registry
 
 def register():
     functions.addon_register(registry.classes)
