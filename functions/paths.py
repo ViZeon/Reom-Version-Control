@@ -2,6 +2,7 @@ import os
 from .. import wrapper, data
 from ..utils.logger import get_logger
 from . import state
+from .gateway import safe_write
 
 log = get_logger()
 
@@ -99,14 +100,20 @@ def migrate_all_versions(root, new_mode):
                     ind_path = os.path.join(asset_dir, f"{ob.name}{data.BLEND_EXT}")
                     blocks = {ob, ob.data} if ob.data else {ob}
                     blocks.update(wrapper.get_mats(ob))
-                    wrapper.write_lib(ind_path, blocks)
+                    # Use REPLACE to cleanly overwrite any half-written files from previous failed migrations
+                    safe_write(ind_path, blocks, data.MODE_REPLACE)
                     wrapper.remove_obj(ob)
                     
             os.remove(fpath)
             
+        # 2. Clean up ALL backup files from previous modes
+        for f in list(os.listdir(asset_dir)):
+            if data.BAK_EXT in f:
+                os.remove(os.path.join(asset_dir, f))
+                
         if new_mode == data.MODE_VER: continue
         
-        # 2. Group individual files and repack them
+        # 3. Group individual files and repack them
         groups = {} # group_key -> [list of (filepath, v_tuple)]
         for f in os.listdir(asset_dir):
             if not f.endswith(data.BLEND_EXT): continue

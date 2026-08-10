@@ -88,6 +88,7 @@ class REOM_VC_OT_version(bpy.types.Operator):
     def execute(self, ctx):
         obj = wrapper.get_active_obj()
         if not obj: return _report(self, data.ERR_NO_OBJ)
+        if functions.is_linked(obj): return _report(self, "Object is linked. Enter Edit mode first.")
         if not functions.get_lib(obj):
             wrapper.invoke(data.OP_SETUP); return {data.OP_CANCEL}
         if not functions.get_cat(obj):

@@ -99,9 +99,9 @@ def pack_version(obj, name, v_tuple, path):
         
     obj.name = target_name
     if obj.data: 
-        if target_name in wrapper.get_meshes() and wrapper.get_meshes()[target_name] != obj.data:
-            wrapper.get_meshes()[target_name].name = target_name + data.TEMP_SUFFIX
-        obj.data.name = target_name
+        # Safely rename mesh data if it is not read-only (e.g. if it's not linked)
+        if not obj.data.library:
+            obj.data.name = target_name
         
     blocks = {obj, obj.data} if obj.data else {obj}
     blocks.update(wrapper.get_mats(obj))
@@ -114,7 +114,9 @@ def pack_version(obj, name, v_tuple, path):
     log.info(f"Packed version {v_str} into {path}")
     
     obj.name = orig_name
-    if obj.data and orig_data_name: obj.data.name = orig_data_name
+    if obj.data and orig_data_name: 
+        if not obj.data.library:
+            obj.data.name = orig_data_name
         
     for ob in loaded_objs: wrapper.remove_obj(ob)
 
