@@ -1,96 +1,127 @@
-"""Pure functions. No bpy."""
+"""Pure functions and business logic. No bpy."""
 import os, sys, uuid
 from . import wrapper, data
 
-# === LIFECYCLE ===
 def addon_register(classes):
     wrapper.register(classes)
     mod = sys.modules.get(__package__)
-    if mod and getattr(mod, "_AUTO_ENABLED", False):
-        setattr(mod, "_AUTO_ENABLED", False)
+    if mod and getattr(mod, data.AUTO_ENABLED, False):
+        setattr(mod, data.AUTO_ENABLED, False)
     else:
         def _startup():
             win, area = wrapper.get_view3d()
             if win and area:
                 with wrapper.override(win, area): wrapper.invoke(data.OP_STARTUP)
-        wrapper.timer(_startup, 0.1)
+        wrapper.timer(_startup, data.STARTUP_DELAY)
 
 def addon_unregister(classes): wrapper.unregister(classes)
 
-# === MESH STATE ===
-def mesh_get_name(obj): return wrapper.get_prop(obj, data.PROP_NAME) or obj.name
+# === STATE ===
+def get_name(obj): return wrapper.get_prop(obj, data.P_NAME) or obj.name
+def get_ver(obj):
+    v = wrapper.get_prop(obj, data.P_VER)
+    return tuple(map(int, v.split(data.VER_SEP))) if v else None
+def get_tag(obj): return wrapper.get_prop(obj, data.P_TAG)
+def get_lib(obj): return wrapper.get_prop(obj, data.P_LIB)
 
-def mesh_get_ver(obj):
-    v = wrapper.get_prop(obj, data.PROP_VER)
-    return tuple(int(p) for p in v.split('_')) if v else None
+def set_ver(obj, v): wrapper.set_prop(obj, data.P_VER, data.VER_SEP.join(map(str, v)))
+def set_tag(obj, t): wrapper.set_prop(obj, data.P_TAG, t)
+def set_lib(obj, p): wrapper.set_prop(obj, data.P_LIB, p)
 
-def mesh_set_ver(obj, v): wrapper.set_prop(obj, data.PROP_VER, '_'.join(map(str, v)))
-def mesh_get_lib(obj): return wrapper.get_prop(obj, data.PROP_LIB)
-def mesh_set_lib(obj, p): wrapper.set_prop(obj, data.PROP_LIB, p)
-def mesh_get_tag(obj): return wrapper.get_prop(obj, data.PROP_TAG)
-def mesh_set_tag(obj, t): wrapper.set_prop(obj, data.PROP_TAG, t)
-
-# === TAGS & VERSIONS ===
-def tag_parse(s): return [t.strip() for t in s.split(',')] if s else []
-def tag_to_catalog(t): return str(uuid.uuid5(uuid.NAMESPACE_DNS, t))
-def ver_bump(v): return (v[0], v[1], v[2] + 1)
-def ver_str(v): return '_'.join(map(str, v))
+# === MATH & PARSING ===
+def parse_tags(s): return [t.strip() for t in s.split(data.TAG_SEP)] if s else []
+def tag_to_catalog(t): return str(uuid.uuid5(data.NAMESPACE, t))
+def bump_ver(v): return (v[0], v[1], v[2] + 1)
+def str_ver(v): return data.VER_SEP.join(map(str, v))
 
 # === FILE PATHS ===
-def file_find_root(lib_path):
-    if not lib_path: return None
-    p = os.path.expanduser(lib_path)
-    if os.path.exists(os.path.join(p, data.VERSIONS_DIR)): return p
+def find_root(path):
+    if not path: return None
+    p = os.path.expanduser(path)
+    if os.path.exists(os.path.join(p, data.V_DIR)): return p
     try:
         for n in os.listdir(p):
             sub = os.path.join(p, n)
-            if os.path.isdir(sub) and os.path.exists(os.path.join(sub, data.VERSIONS_DIR)): return sub
+            if os.path.isdir(sub) and os.path.exists(os.path.join(sub, data.V_DIR)): return sub
     except: pass
     return None
 
-def file_scan_versions(mesh_name, lib_path):
-    root = file_find_root(lib_path)
+def scan_versions(name, path):
+    root = find_root(path)
     if not root: return []
-    vdir = os.path.join(root, data.VERSIONS_DIR, mesh_name)
+    vdir = os.path.join(root, data.V_DIR, name)
     if not os.path.exists(vdir): return []
     
-    pref, suff = f"{mesh_name}_", ".blend"
+    pref, suff = f"{name}{data.VER_SEP}", data.BLEND_EXT
     vers = []
     for f in os.listdir(vdir):
         if f.startswith(pref) and f.endswith(suff):
-            try: vers.append(tuple(int(p) for p in f[len(pref):-len(suff)].split('_')))
+            try: vers.append(tuple(map(int, f[len(pref):-len(suff)].split(data.VER_SEP))))
             except: pass
     vers.sort()
     return vers
 
-def file_get_version_path(mesh_name, ver_str, root):
-    vdir = os.path.join(root, data.VERSIONS_DIR, mesh_name)
+def get_version_path(name, v_str, root):
+    vdir = os.path.join(root, data.V_DIR, name)
     os.makedirs(vdir, exist_ok=True)
-    return os.path.join(vdir, f"{mesh_name}_{ver_str}.blend")
+    return os.path.join(vdir, f"{name}{data.VER_SEP}{v_str}{data.BLEND_EXT}")
 
-def file_get_lib_path(mesh_name, root):
-    return os.path.join(os.path.expanduser(root), f"{mesh_name}.blend") if root else ""
-
-def file_prepare_path(path):
-    if not path.endswith('.blend'): path += '.blend'
+def prepare_path(path):
+    if not path.endswith(data.BLEND_EXT): path += data.BLEND_EXT
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
 
-# === LIBRARY OPS ===
-def lib_write(obj, filepath):
+# === LIBRARY SYNC ===
+def write_obj(obj, path):
     blocks = {obj, obj.data} if obj.data else {obj}
     blocks.update(wrapper.get_mats(obj))
-    wrapper.write_lib(filepath, blocks)
+    wrapper.write_lib(path, blocks)
 
-def lib_update(obj, filepath, tag):
+def sync_to_lib(obj, lib_path, tag=None):
     if not wrapper.has_asset(obj): wrapper.mark_asset(obj)
     if tag and wrapper.has_asset(obj): wrapper.set_catalog(obj, tag_to_catalog(tag))
-    lib_write(obj, filepath)
+    write_obj(obj, lib_path)
 
-def lib_promote_from_file(src_path, lib_path, tag):
+def sync_file_to_lib(ver_path, lib_path, tag=None):
     existing = set(wrapper.get_all_objs().keys())
-    with wrapper.load_lib(src_path) as (df, dt): dt.objects = df.objects
+    with wrapper.load_lib(ver_path) as (df, dt): dt.objects = df.objects
     for ob in wrapper.get_all_objs():
         if ob.name not in existing:
-            lib_update(ob, lib_path, tag)
+            sync_to_lib(ob, lib_path, tag)
             wrapper.remove_obj(ob)
+
+# === ACTIONS (Called by UI) ===
+def setup_lib(obj, filepath):
+    path = prepare_path(wrapper.abspath(filepath))
+    if not os.path.exists(path): wrapper.save_main(path)
+    set_lib(obj, path)
+    return data.INFO_LIB_SET.format(path)
+
+def save_version(obj):
+    lib = get_lib(obj)
+    name = get_name(obj)
+    root = wrapper.get_prefs().lib_path
+    new_ver = bump_ver(get_ver(obj)) if get_ver(obj) else data.INITIAL_VERSION
+    v_str = str_ver(new_ver)
+    
+    write_obj(obj, get_version_path(name, v_str, root))
+    sync_to_lib(obj, lib, get_tag(obj))
+    set_ver(obj, new_ver)
+    return data.INFO_SAVED.format(name, v_str)
+
+def highlight_version(obj, v_str):
+    lib = get_lib(obj)
+    name = get_name(obj)
+    ver_path = get_version_path(name, v_str, wrapper.get_prefs().lib_path)
+    sync_file_to_lib(ver_path, lib, get_tag(obj))
+    return data.INFO_HIGHLIGHTED.format(name, v_str)
+
+def assign_tag(obj, tag):
+    set_tag(obj, tag)
+    return data.INFO_TAG_SET.format(tag)
+
+def scan_info(obj):
+    name = get_name(obj)
+    vers = scan_versions(name, wrapper.get_prefs().lib_path)
+    if vers: return data.INFO_VER_LIST.format(name, data.TAG_JOIN.join(str_ver(v) for v in vers))
+    return data.INFO_NO_VER.format(name)
