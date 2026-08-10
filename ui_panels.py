@@ -22,14 +22,12 @@ class REOM_VC_PT_main(bpy.types.Panel):
         
         lib = functions.get_lib(obj)
         
-        # Empty State
         if not lib:
             l.label(text=data.TEXT_SETUP_PROMPT)
             l.label(text=data.TEXT_SETUP_HINT)
             l.operator(data.OP_SETUP)
             return
         
-        # Ready State
         name = functions.get_name(obj)
         ver = functions.get_ver(obj)
         cat = functions.get_cat_name(obj)
@@ -48,4 +46,10 @@ class REOM_VC_PT_main(bpy.types.Panel):
                 op = row.operator(data.OP_HIGHLIGHT, text=data.TEXT_HIGHLIGHT)
                 op.version_str = functions.str_ver(v)
         
-        l.operator(data.OP_SAVE)
+        row = l.row(align=True)
+        op = row.operator(data.OP_VERSION, text=data.TEXT_SAVE)
+        op.action = data.ACT_SAVE
+        op = row.operator(data.OP_VERSION, text=data.TEXT_STEP)
+        op.action = data.ACT_STEP
+        op = row.operator(data.OP_VERSION, text=data.TEXT_RELEASE)
+        op.action = data.ACT_RELEASE

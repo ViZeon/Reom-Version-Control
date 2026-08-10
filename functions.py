@@ -30,6 +30,8 @@ def set_cat(obj, cid): wrapper.set_prop(obj, data.P_CAT, cid)
 
 # === MATH & PARSING ===
 def bump_ver(v): return (v[0], v[1], v[2] + 1)
+def bump_step(v): return (v[0], v[1] + 1, 0)
+def bump_release(v): return (v[0] + 1, 0, 0)
 def str_ver(v): return data.VER_SEP.join(map(str, v))
 def format_ver_ui(v): return data.UI_VER_PREFIX + data.UI_VER_SEP.join(map(str, v))
 
@@ -229,12 +231,22 @@ def setup_lib(obj, filepath):
     set_lib(obj, path)
     return data.INFO_LIB_SET.format(path)
 
-def save_version(obj):
+def save_version(obj, action=data.ACT_SAVE):
     lib = get_lib(obj)
     name = get_name(obj)
     root = wrapper.get_prefs().lib_path
     cat = get_cat(obj)
-    new_ver = bump_ver(get_ver(obj)) if get_ver(obj) else data.INITIAL_VERSION
+    cur_ver = get_ver(obj)
+    
+    if not cur_ver:
+        new_ver = data.INITIAL_VERSION
+    else:
+        match action:
+            case data.ACT_SAVE: new_ver = bump_ver(cur_ver)
+            case data.ACT_STEP: new_ver = bump_step(cur_ver)
+            case data.ACT_RELEASE: new_ver = bump_release(cur_ver)
+            case _: new_ver = bump_ver(cur_ver)
+            
     v_str = str_ver(new_ver)
     
     write_obj(obj, get_version_path(name, v_str, root), mode=data.MODE_SAFE)

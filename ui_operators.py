@@ -75,9 +75,11 @@ class REOM_VC_OT_setup_cat(bpy.types.Operator):
         functions.assign_cat(obj, cid)
         return _report(self, functions.save_version(obj), data.REPORT_INFO)
 
-class REOM_VC_OT_save(bpy.types.Operator):
-    bl_idname = data.OP_SAVE
-    bl_label = data.OP_SAVE_LABEL
+class REOM_VC_OT_version(bpy.types.Operator):
+    bl_idname = data.OP_VERSION
+    bl_label = data.OP_VERSION_LABEL
+    
+    action: bpy.props.EnumProperty(items=data.ITEM_ACTIONS, default=data.ACT_SAVE)
     
     def execute(self, ctx):
         obj = wrapper.get_active_obj()
@@ -86,7 +88,7 @@ class REOM_VC_OT_save(bpy.types.Operator):
             wrapper.invoke(data.OP_SETUP); return {data.OP_CANCEL}
         if not functions.get_cat(obj):
             wrapper.invoke(data.OP_SETUP_CAT); return {data.OP_CANCEL}
-        return _report(self, functions.save_version(obj), data.REPORT_INFO)
+        return _report(self, functions.save_version(obj, self.action), data.REPORT_INFO)
 
 class REOM_VC_OT_highlight(bpy.types.Operator):
     bl_idname = data.OP_HIGHLIGHT

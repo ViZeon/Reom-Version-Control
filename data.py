@@ -34,16 +34,28 @@ CATALOG_HEADER = "VERSION 1\n"
 SIG_BAK_EXT = ".reom_bak"
 
 # === WRITE MODES ===
-MODE_SAFE = "safe"       # Appends _1, _2 if exists
-MODE_REPLACE = "replace" # Deletes old file
-MODE_BACKUP = "backup"   # Renames old to .bak
-MODE_CUSTOM = "custom"   # Uses custom functions passed as args
+MODE_SAFE = "safe"
+MODE_REPLACE = "replace"
+MODE_BACKUP = "backup"
+MODE_CUSTOM = "custom"
+
+# === VERSION ACTIONS ===
+ACT_SAVE = "save"
+ACT_STEP = "step"
+ACT_RELEASE = "release"
+
+# === ENUM ITEMS ===
+ITEM_ACTIONS = [
+    (ACT_SAVE, "Save", "Save Version"),
+    (ACT_STEP, "Step", "Step Sub-Version"),
+    (ACT_RELEASE, "Release", "Release Major Version")
+]
 
 # === UI METADATA ===
 PANEL_LABEL = "Reom VC"
 PANEL_CATEGORY = "Reom"
 OP_SETUP_LABEL = "Setup Lib File"
-OP_SAVE_LABEL = "Save Version"
+OP_VERSION_LABEL = "Version Actions"
 OP_SETUP_CAT_LABEL = "Set Category"
 OP_TEST_LABEL = "Test Scan"
 PREF_LIB = "lib_path"
@@ -62,11 +74,12 @@ P_CAT = "reom_vc_cat"
 PROP_FILEPATH = "filepath"
 PROP_EXISTING = "existing"
 PROP_NEW_CAT = "new_cat"
+PROP_ACTION = "action"
 
 # === UI IDS ===
 OP_STARTUP = "reom_vc.startup"
 OP_SETUP = "reom_vc.setup_lib_file"
-OP_SAVE = "reom_vc.save"
+OP_VERSION = "reom_vc.version"
 OP_HIGHLIGHT = "reom_vc.highlight"
 OP_SETUP_CAT = "reom_vc.setup_cat"
 OP_TEST = "reom_vc.test_scan"
@@ -89,6 +102,11 @@ TEXT_SETUP_HINT = "Click 'Setup Lib File' to begin tracking versions."
 TEXT_SELECT_CAT = "Select Category"
 TEXT_EXISTING = "Existing:"
 TEXT_NEW_CAT = "New Category:"
+
+# === BUTTON LABELS ===
+TEXT_SAVE = "Save"
+TEXT_STEP = "Step"
+TEXT_RELEASE = "Release"
 
 # === REPORT TEMPLATES ===
 INFO_LIB_SET = "Lib set: {}"
