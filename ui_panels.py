@@ -3,7 +3,7 @@ from . import functions, wrapper, data
 
 class ReomPrefs(bpy.types.AddonPreferences):
     bl_idname = __package__
-    lib_path: bpy.props.StringProperty(name="Library Path", subtype=data.SUBTYPE_DIR)
+    lib_path: bpy.props.StringProperty(name=data.TEXT_FILEPATH_LABEL, subtype=data.SUBTYPE_DIR)
     
     def draw(self, ctx):
         self.layout.prop(self, data.PREF_LIB)
@@ -20,12 +20,22 @@ class REOM_VC_PT_main(bpy.types.Panel):
         obj = wrapper.get_active_obj()
         if not obj: return
         
+        lib = functions.get_lib(obj)
+        
+        # Empty State
+        if not lib:
+            l.label(text=data.TEXT_SETUP_PROMPT)
+            l.label(text=data.TEXT_SETUP_HINT)
+            l.operator(data.OP_SETUP)
+            return
+        
+        # Ready State
         name = functions.get_name(obj)
         ver = functions.get_ver(obj)
         cat = functions.get_cat_name(obj)
         
         l.label(text=f"{data.TEXT_MESH}{name}")
-        if ver: l.label(text=f"{data.TEXT_VERSION}{functions.str_ver(ver)}")
+        if ver: l.label(text=f"{data.TEXT_VERSION}{functions.format_ver_ui(ver)}")
         if cat: l.label(text=f"{data.TEXT_CAT}{cat}")
         
         vers = functions.scan_versions(name, wrapper.get_prefs().lib_path)
@@ -34,11 +44,9 @@ class REOM_VC_PT_main(bpy.types.Panel):
             box = l.box()
             for v in vers:
                 row = box.row()
-                row.label(text=functions.str_ver(v))
+                row.label(text=functions.format_ver_ui(v))
                 op = row.operator(data.OP_HIGHLIGHT, text=data.TEXT_HIGHLIGHT)
                 op.version_str = functions.str_ver(v)
         
-        l.operator(data.OP_TEST)
         l.operator(data.OP_SAVE)
         l.operator(data.OP_HIGHLIGHT)
-        l.operator(data.OP_SETUP_CAT)

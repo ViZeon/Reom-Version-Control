@@ -31,6 +31,21 @@ CATALOG_FILE = "blender_assets.cats.txt"
 CATALOG_HEADER = "VERSION 1\n"
 SIG_BAK_EXT = ".reom_bak"
 
+# === UI METADATA ===
+PANEL_LABEL = "Reom VC"
+PANEL_CATEGORY = "Reom"
+OP_SETUP_LABEL = "Setup Lib File"
+OP_SAVE_LABEL = "Save Version"
+OP_SETUP_CAT_LABEL = "Set Category"
+OP_TEST_LABEL = "Test Scan"
+PREF_LIB = "lib_path"
+WIDTH_SMALL = 300
+WIDTH_LARGE = 400
+
+# === UI FORMATS ===
+UI_VER_PREFIX = "v"
+UI_VER_SEP = "."
+
 # === PROPERTIES ===
 P_NAME = "reom_vc_name"
 P_VER = "reom_vc_ver"
@@ -49,20 +64,11 @@ OP_SETUP_CAT = "reom_vc.setup_cat"
 OP_TEST = "reom_vc.test_scan"
 PANEL_ID = "VIEW3D_PT_reom_vc"
 
-# === UI METADATA ===
-PANEL_LABEL = "Reom VC"
-PANEL_CATEGORY = "Reom"
-OP_SETUP_LABEL = "Setup Lib File"
-OP_SAVE_LABEL = "Save Version"
-OP_SETUP_CAT_LABEL = "Set Category"
-OP_TEST_LABEL = "Test Scan"
-PREF_LIB = "lib_path"
-WIDTH_SMALL = 300
-WIDTH_LARGE = 400
-
 # === UI STRINGS ===
 TEXT_READY = "VC is ready."
 TEXT_SELECT_LIB = "Select library file"
+TEXT_FILEPATH_LABEL = "Library File"
+TEXT_FILEPATH_DESC = "Creates a .blend file to hold the asset and its versions."
 TEXT_PICK_VER = "Pick version:"
 TEXT_HIGHLIGHT = "Highlight"
 TEXT_MESH = "Mesh: "
@@ -70,6 +76,8 @@ TEXT_VERSION = "Version: "
 TEXT_CAT = "Category: "
 TEXT_VERSIONS = "Versions:"
 TEXT_NO_VER = "No versions found"
+TEXT_SETUP_PROMPT = "No library file set for this object."
+TEXT_SETUP_HINT = "Click 'Setup Lib File' to begin tracking versions."
 TEXT_SELECT_CAT = "Select Category"
 TEXT_EXISTING = "Existing:"
 TEXT_NEW_CAT = "New Category:"

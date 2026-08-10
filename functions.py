@@ -31,6 +31,7 @@ def set_cat(obj, cid): wrapper.set_prop(obj, data.P_CAT, cid)
 # === MATH & PARSING ===
 def bump_ver(v): return (v[0], v[1], v[2] + 1)
 def str_ver(v): return data.VER_SEP.join(map(str, v))
+def format_ver_ui(v): return data.UI_VER_PREFIX + data.UI_VER_SEP.join(map(str, v))
 
 # === FILE PATHS ===
 def find_root(path):

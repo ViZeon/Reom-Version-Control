@@ -26,7 +26,11 @@ class REOM_VC_OT_startup(bpy.types.Operator):
 class REOM_VC_OT_setup(bpy.types.Operator):
     bl_idname = data.OP_SETUP
     bl_label = data.OP_SETUP_LABEL
-    filepath: bpy.props.StringProperty(subtype=data.SUBTYPE_FILE)
+    filepath: bpy.props.StringProperty(
+        name=data.TEXT_FILEPATH_LABEL, 
+        subtype=data.SUBTYPE_FILE, 
+        description=data.TEXT_FILEPATH_DESC
+    )
     
     def invoke(self, ctx, ev):
         obj = wrapper.get_active_obj()
@@ -102,7 +106,7 @@ class REOM_VC_OT_highlight(bpy.types.Operator):
         vers = functions.scan_versions(functions.get_name(wrapper.get_active_obj()), wrapper.get_prefs().lib_path)
         self.layout.label(text=data.TEXT_PICK_VER)
         for v in vers:
-            op = self.layout.operator(data.OP_HIGHLIGHT, text=functions.str_ver(v))
+            op = self.layout.operator(data.OP_HIGHLIGHT, text=functions.format_ver_ui(v))
             op.version_str = functions.str_ver(v)
             
     def execute(self, ctx):
