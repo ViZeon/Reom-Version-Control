@@ -43,12 +43,16 @@ def scan_versions(name, path):
     if mode == data.MODE_VER:
         pref, suff = f"{name}{data.VER_SEP}", data.BLEND_EXT
         for f in os.listdir(vdir):
+            # Ignore backup folders
+            if f.startswith(data.BACKUP_PREFIX): continue
             if f.startswith(pref) and f.endswith(suff) and not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT):
                 try: vers.append(tuple(map(int, f[len(pref):-len(suff)].split(data.VER_SEP))))
                 except: pass
     else:
         pref, suff = f"{name}{data.VER_SEP}", f"{data.PACKED_SUFFIX}{data.BLEND_EXT}"
         for f in os.listdir(vdir):
+            # Ignore backup folders
+            if f.startswith(data.BACKUP_PREFIX): continue
             if f.startswith(pref) and f.endswith(suff):
                 fpath = os.path.join(vdir, f)
                 try:
@@ -86,6 +90,8 @@ def migrate_all_versions(root, new_mode):
         
         # 1. Unpack any existing packed files to individual files
         for f in list(os.listdir(asset_dir)):
+            # Skip backup folders, they should be left alone!
+            if f.startswith(data.BACKUP_PREFIX): continue
             if not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT): continue
             fpath = os.path.join(asset_dir, f)
             
@@ -106,16 +112,12 @@ def migrate_all_versions(root, new_mode):
                     
             os.remove(fpath)
             
-        # 2. Clean up ALL backup files from previous modes
-        for f in list(os.listdir(asset_dir)):
-            if data.BAK_EXT in f:
-                os.remove(os.path.join(asset_dir, f))
-                
         if new_mode == data.MODE_VER: continue
         
-        # 3. Group individual files and repack them
+        # 2. Group individual files and repack them
         groups = {} # group_key -> [list of (filepath, v_tuple)]
         for f in os.listdir(asset_dir):
+            if f.startswith(data.BACKUP_PREFIX): continue
             if not f.endswith(data.BLEND_EXT): continue
             v_str = f[len(asset_name)+1:-len(data.BLEND_EXT)]
             try:

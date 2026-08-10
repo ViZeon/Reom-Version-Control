@@ -56,30 +56,30 @@ def write_obj(obj, path, name=None, cat=None, mode=data.MODE_REPLACE):
         if temp_name and temp_name in wrapper.get_meshes():
             wrapper.get_meshes()[temp_name].name = name
 
-def backup_packed_file(path):
-    """Cycles up to MAX_BACKUPS copies of a file."""
-    if not os.path.exists(path): return
+def backup_packed_file(path, mode):
+    """Moves the existing packed file to a backup folder specific to the mode. Replaces if exists."""
+    if not os.path.exists(path): return None
     
-    oldest = f"{path}.bak{data.MAX_BACKUPS}"
-    if os.path.exists(oldest): os.remove(oldest)
+    vdir = os.path.dirname(path)
+    backup_dir = os.path.join(vdir, f"{data.BACKUP_PREFIX}{mode}")
+    os.makedirs(backup_dir, exist_ok=True)
     
-    for i in range(data.MAX_BACKUPS - 1, 0, -1):
-        curr = f"{path}.bak{i}"
-        nxt = f"{path}.bak{i+1}"
-        if os.path.exists(curr): os.rename(curr, nxt)
+    backup_path = os.path.join(backup_dir, os.path.basename(path))
+    if os.path.exists(backup_path):
+        os.remove(backup_path)
         
-    os.rename(path, f"{path}.bak1")
-    log.info(f"Backed up packed file to: {path}.bak1")
+    os.rename(path, backup_path)
+    log.info(f"Backed up packed file to: {backup_path}")
+    return backup_path
 
-def pack_version(obj, name, v_tuple, path):
+def pack_version(obj, name, v_tuple, path, mode):
     """Packs an object into a single .blend file containing multiple versions."""
-    backup_packed_file(path)
+    backup_path = backup_packed_file(path, mode)
     
     loaded_objs = []
-    bak_path = f"{path}.bak1"
-    if os.path.exists(bak_path):
+    if backup_path and os.path.exists(backup_path):
         existing = set(wrapper.get_all_objs().keys())
-        with wrapper.load_lib(bak_path) as (df, dt):
+        with wrapper.load_lib(backup_path) as (df, dt):
             obj_names = [n for n in df.objects if n.startswith(name)]
             dt.objects = obj_names
             
@@ -99,7 +99,6 @@ def pack_version(obj, name, v_tuple, path):
         
     obj.name = target_name
     if obj.data: 
-        # Safely rename mesh data if it is not read-only (e.g. if it's not linked)
         if not obj.data.library:
             obj.data.name = target_name
         

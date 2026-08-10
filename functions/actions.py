@@ -45,7 +45,7 @@ def save_version(obj, action=data.ACT_SAVE, root=None):
     if mode == data.MODE_VER:
         write_obj(obj, ver_path, name, mode=data.MODE_SAFE)
     else:
-        pack_version(obj, name, new_ver, ver_path)
+        pack_version(obj, name, new_ver, ver_path, mode)
     
     validate_lib_file(lib, name)
     write_obj(obj, lib, name, cat, data.MODE_REPLACE)

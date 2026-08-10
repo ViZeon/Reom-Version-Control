@@ -34,7 +34,7 @@ BAK_EXT = ".bak"
 CATALOG_FILE = "blender_assets.cats.txt"
 CATALOG_HEADER = "VERSION 1\n"
 PACKED_SUFFIX = ".versions"
-MAX_BACKUPS = 3
+BACKUP_PREFIX = "_backup_"
 
 # === STORAGE MODES ===
 MODE_VER = "per_current"
