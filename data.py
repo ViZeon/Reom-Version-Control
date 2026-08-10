@@ -33,6 +33,12 @@ CATALOG_FILE = "blender_assets.cats.txt"
 CATALOG_HEADER = "VERSION 1\n"
 SIG_BAK_EXT = ".reom_bak"
 
+# === WRITE MODES ===
+MODE_SAFE = "safe"       # Appends _1, _2 if exists
+MODE_REPLACE = "replace" # Deletes old file
+MODE_BACKUP = "backup"   # Renames old to .bak
+MODE_CUSTOM = "custom"   # Uses custom functions passed as args
+
 # === UI METADATA ===
 PANEL_LABEL = "Reom VC"
 PANEL_CATEGORY = "Reom"

@@ -75,6 +75,57 @@ def prepare_path(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
 
+# === SAFE WRITE GATEWAY ===
+def _get_unique_path(path):
+    base, ext = os.path.splitext(path)
+    i = 1
+    while os.path.exists(f"{base}_{i}{ext}"):
+        i += 1
+    return f"{base}_{i}{ext}"
+
+def _resolve_safety(path, mode, *args):
+    if not os.path.exists(path): return path
+    
+    match mode:
+        case data.MODE_SAFE:
+            return _get_unique_path(path)
+        case data.MODE_REPLACE:
+            os.remove(path)
+            return path
+        case data.MODE_BACKUP:
+            bak_path = _get_unique_path(path + ".bak")
+            os.rename(path, bak_path)
+            print(data.WARN_BACKUP.format(bak_path))
+            return path
+        case data.MODE_CUSTOM:
+            if args and callable(args[0]): return args[0](path)
+            return path
+        case _:
+            raise ValueError(f"Unknown safety mode: {mode}")
+
+def _write_text(path, lines):
+    with open(path, 'w') as f: f.writelines(lines)
+
+def safe_write(path, file_data, mode, *args):
+    safety_mode = mode
+    file_func = None
+    
+    if mode == data.MODE_CUSTOM:
+        safety_mode = args[0] if len(args) > 0 else data.MODE_SAFE
+        file_func = args[1] if len(args) > 1 else None
+
+    safe_path = _resolve_safety(path, safety_mode)
+    
+    if file_func:
+        file_func(safe_path, file_data)
+        return
+        
+    ext = os.path.splitext(safe_path)[1].lower()
+    match ext:
+        case ".blend": wrapper.write_lib(safe_path, file_data)
+        case ".txt": _write_text(safe_path, file_data)
+        case _: raise ValueError(f"Unsupported file type for write: {ext}")
+
 # === CATEGORIES (Asset Browser Catalogs) ===
 def read_cats(lib_path):
     if not lib_path: return {}
@@ -118,9 +169,7 @@ def add_cat(lib_path, name):
     if not any(line.startswith(f"{cid}:") for line in lines):
         lines.append(f"{cid}:{name}:{name}\n")
         
-    with open(fpath, 'w') as f:
-        f.writelines(lines)
-        
+    safe_write(fpath, lines, data.MODE_REPLACE)
     return cid
 
 # === LIBRARY VALIDATION & SYNC ===
@@ -137,19 +186,16 @@ def validate_lib_file(lib_path, obj_name):
         needs_backup = True
         
     if needs_backup:
-        bak_path = lib_path + data.SIG_BAK_EXT
-        if os.path.exists(bak_path): os.remove(bak_path)
-        os.rename(lib_path, bak_path)
-        print(data.WARN_BACKUP.format(bak_path))
+        _resolve_safety(lib_path, data.MODE_BACKUP)
 
-def write_obj(obj, path, cat=None):
+def write_obj(obj, path, cat=None, mode=data.MODE_REPLACE):
     if cat:
         wrapper.mark_asset(obj)
         wrapper.set_catalog(obj, cat)
         
     blocks = {obj, obj.data} if obj.data else {obj}
     blocks.update(wrapper.get_mats(obj))
-    wrapper.write_lib(path, blocks)
+    safe_write(path, blocks, mode)
     
     if cat:
         wrapper.clear_asset(obj)
@@ -157,7 +203,6 @@ def write_obj(obj, path, cat=None):
 def sync_file_to_lib(ver_path, lib_path, name, tag=None):
     existing = set(wrapper.get_all_objs().keys())
     
-    # Temporarily rename the live object to avoid naming collisions
     live_obj = wrapper.get_active_obj()
     temp_name = name + data.TEMP_SUFFIX
     if live_obj and live_obj.name == name:
@@ -171,12 +216,9 @@ def sync_file_to_lib(ver_path, lib_path, name, tag=None):
         if ob.name not in existing:
             ob.name = name
             if ob.data: ob.data.name = name
-            
-            if os.path.exists(lib_path): os.remove(lib_path)
-            write_obj(ob, lib_path, tag)
+            write_obj(ob, lib_path, tag, data.MODE_REPLACE)
             wrapper.remove_obj(ob)
             
-    # Restore live object name safely
     if temp_name in wrapper.get_all_objs():
         wrapper.get_all_objs()[temp_name].name = name
 
@@ -195,11 +237,10 @@ def save_version(obj):
     new_ver = bump_ver(get_ver(obj)) if get_ver(obj) else data.INITIAL_VERSION
     v_str = str_ver(new_ver)
     
-    write_obj(obj, get_version_path(name, v_str, root))
+    write_obj(obj, get_version_path(name, v_str, root), mode=data.MODE_SAFE)
     
     validate_lib_file(lib, name)
-    if os.path.exists(lib): os.remove(lib)
-    write_obj(obj, lib, cat)
+    write_obj(obj, lib, cat, data.MODE_REPLACE)
     
     set_ver(obj, new_ver)
     wrapper.refresh_assets()
