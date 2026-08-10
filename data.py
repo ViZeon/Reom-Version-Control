@@ -28,6 +28,11 @@ V_DIR = "_versions"
 VER_SEP = "_"
 BLEND_EXT = ".blend"
 CATALOG_FILE = "blender_assets.cats.txt"
+CATALOG_HEADER = "VERSION 1\n"
+
+# === SIGNATURES ===
+SIG_NAME = "reom_vc_sig"
+SIG_BAK_EXT = ".reom_bak"
 
 # === PROPERTIES ===
 P_NAME = "reom_vc_name"
@@ -79,6 +84,9 @@ INFO_HIGHLIGHTED = "Highlighted {} {}"
 INFO_CAT_SET = "Category set: {}"
 INFO_VER_LIST = "Mesh '{}' versions: {}"
 INFO_NO_VER = "Mesh '{}' has no versions"
+
+# === WARNINGS ===
+WARN_BACKUP = "Backed up user file to: {}"
 
 # === ERROR MESSAGES ===
 ERR_NO_OBJ = "No object selected"

@@ -39,3 +39,12 @@ def load_lib(path): return bpy.data.libraries.load(path)
 def remove_obj(obj): bpy.data.objects.remove(obj, do_unlink=data.DO_UNLINK)
 def save_main(path): bpy.ops.wm.save_as_mainfile(filepath=path, copy=data.COPY_MAIN)
 def abspath(p): return bpy.path.abspath(p)
+
+# === TEXT DATA (FOR SIGNATURES) ===
+def create_text(name, body):
+    txt = bpy.data.texts.new(name)
+    txt.write(body)
+    return txt
+
+def remove_text(txt):
+    bpy.data.texts.remove(txt)

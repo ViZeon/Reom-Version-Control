@@ -77,7 +77,7 @@ def read_cats(lib_path):
     cats = {}
     with open(fpath, 'r') as f:
         for line in f:
-            if line.startswith('#') or not line.strip(): continue
+            if line.startswith('#') or not line.strip() or line.startswith('VERSION'): continue
             parts = line.split(':', 2)
             if len(parts) == 3:
                 cats[parts[2].strip()] = parts[0].strip()
@@ -94,22 +94,53 @@ def get_cat_name(obj):
 def add_cat(lib_path, name):
     cid = str(uuid.uuid5(data.NAMESPACE, name))
     fpath = os.path.join(os.path.dirname(wrapper.abspath(lib_path)), data.CATALOG_FILE)
+    needs_header = not os.path.exists(fpath) or os.path.getsize(fpath) == 0
     with open(fpath, 'a') as f:
+        if needs_header: f.write(data.CATALOG_HEADER)
         f.write(f"{cid}:{name}:{name}\n")
     return cid
 
-# === LIBRARY SYNC ===
-def write_obj(obj, path):
-    blocks = {obj, obj.data} if obj.data else {obj}
+# === LIBRARY VALIDATION & SYNC ===
+def validate_lib_file(lib_path, obj_name):
+    if not lib_path or not os.path.exists(lib_path): return
+    
+    needs_backup = False
+    try:
+        with wrapper.load_lib(lib_path) as (df, dt):
+            obj_count = len(df.objects)
+            has_sig = data.SIG_NAME in df.texts
+            if not has_sig or obj_count > 1 or (obj_count == 1 and obj_name not in df.objects):
+                needs_backup = True
+    except:
+        needs_backup = True
+        
+    if needs_backup:
+        bak_path = lib_path + data.SIG_BAK_EXT
+        if os.path.exists(bak_path): os.remove(bak_path)
+        os.rename(lib_path, bak_path)
+        print(data.WARN_BACKUP.format(bak_path))
+
+def write_obj(obj, path, cat=None):
+    if cat:
+        wrapper.mark_asset(obj)
+        wrapper.set_catalog(obj, cat)
+        
+    sig_text = wrapper.create_text(data.SIG_NAME, get_name(obj))
+    blocks = {obj, obj.data, sig_text} if obj.data else {obj, sig_text}
     blocks.update(wrapper.get_mats(obj))
+    
     wrapper.write_lib(path, blocks)
+    
+    wrapper.remove_text(sig_text)
+    if cat:
+        wrapper.clear_asset(obj)
 
 def sync_file_to_lib(ver_path, lib_path, tag=None):
     existing = set(wrapper.get_all_objs().keys())
     with wrapper.load_lib(ver_path) as (df, dt): dt.objects = df.objects
     for ob in wrapper.get_all_objs():
         if ob.name not in existing:
-            write_obj(ob, lib_path)
+            write_obj(ob, lib_path, tag)
             wrapper.remove_obj(ob)
 
 # === ACTIONS (Called by UI) ===
@@ -129,10 +160,8 @@ def save_version(obj):
     
     write_obj(obj, get_version_path(name, v_str, root)) # Plain save to versions dir
     
-    wrapper.mark_asset(obj)
-    wrapper.set_catalog(obj, cat)
-    write_obj(obj, lib) # Marked save to library
-    wrapper.clear_asset(obj) # Clean live object
+    validate_lib_file(lib, name)
+    write_obj(obj, lib, cat) # Marked save to library
     
     set_ver(obj, new_ver)
     return data.INFO_SAVED.format(name, v_str)
@@ -141,6 +170,8 @@ def highlight_version(obj, v_str):
     lib = get_lib(obj)
     name = get_name(obj)
     ver_path = get_version_path(name, v_str, wrapper.get_prefs().lib_path)
+    
+    validate_lib_file(lib, name)
     sync_file_to_lib(ver_path, lib, get_cat(obj))
     return data.INFO_HIGHLIGHTED.format(name, v_str)
 
