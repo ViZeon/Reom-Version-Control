@@ -29,9 +29,6 @@ VER_SEP = "_"
 BLEND_EXT = ".blend"
 CATALOG_FILE = "blender_assets.cats.txt"
 CATALOG_HEADER = "VERSION 1\n"
-
-# === SIGNATURES ===
-SIG_NAME = "reom_vc_sig"
 SIG_BAK_EXT = ".reom_bak"
 
 # === PROPERTIES ===

@@ -72,7 +72,9 @@ def prepare_path(path):
 # === CATEGORIES (Asset Browser Catalogs) ===
 def read_cats(lib_path):
     if not lib_path: return {}
-    fpath = os.path.join(os.path.dirname(wrapper.abspath(lib_path)), data.CATALOG_FILE)
+    dir_path = os.path.dirname(wrapper.abspath(lib_path))
+    if not dir_path: return {}
+    fpath = os.path.join(dir_path, data.CATALOG_FILE)
     if not os.path.exists(fpath): return {}
     cats = {}
     with open(fpath, 'r') as f:
@@ -93,18 +95,20 @@ def get_cat_name(obj):
 
 def add_cat(lib_path, name):
     cid = str(uuid.uuid5(data.NAMESPACE, name))
-    fpath = os.path.join(os.path.dirname(wrapper.abspath(lib_path)), data.CATALOG_FILE)
+    dir_path = os.path.dirname(wrapper.abspath(lib_path))
+    if not dir_path: dir_path = "."
+    fpath = os.path.join(dir_path, data.CATALOG_FILE)
     
-    lines = []
+    lines = [data.CATALOG_HEADER]
     if os.path.exists(fpath):
         with open(fpath, 'r') as f:
-            lines = f.readlines()
-            
-    # Enforce header
-    if not lines or not lines[0].startswith('VERSION'):
-        lines.insert(0, data.CATALOG_HEADER)
-        
-    # Avoid duplicates
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('VERSION') or line.startswith('#'): continue
+                parts = line.split(':', 2)
+                if len(parts) == 3:
+                    lines.append(f"{parts[0]}:{parts[1]}:{parts[2]}\n")
+                    
     if not any(line.startswith(f"{cid}:") for line in lines):
         lines.append(f"{cid}:{name}:{name}\n")
         
@@ -121,8 +125,8 @@ def validate_lib_file(lib_path, obj_name):
     try:
         with wrapper.load_lib(lib_path) as (df, dt):
             obj_count = len(df.objects)
-            has_sig = data.SIG_NAME in df.texts
-            if not has_sig or obj_count > 1 or (obj_count == 1 and obj_name not in df.objects):
+            # If there's more than 1 object, or 1 object but wrong name, backup.
+            if obj_count > 1 or (obj_count == 1 and obj_name not in df.objects):
                 needs_backup = True
     except:
         needs_backup = True
@@ -138,13 +142,10 @@ def write_obj(obj, path, cat=None):
         wrapper.mark_asset(obj)
         wrapper.set_catalog(obj, cat)
         
-    sig_text = wrapper.create_text(data.SIG_NAME, get_name(obj))
-    blocks = {obj, obj.data, sig_text} if obj.data else {obj, sig_text}
+    blocks = {obj, obj.data} if obj.data else {obj}
     blocks.update(wrapper.get_mats(obj))
-    
     wrapper.write_lib(path, blocks)
     
-    wrapper.remove_text(sig_text)
     if cat:
         wrapper.clear_asset(obj)
 

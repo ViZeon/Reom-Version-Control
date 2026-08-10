@@ -40,20 +40,14 @@ def remove_obj(obj): bpy.data.objects.remove(obj, do_unlink=data.DO_UNLINK)
 def save_main(path): bpy.ops.wm.save_as_mainfile(filepath=path, copy=data.COPY_MAIN)
 def abspath(p): return bpy.path.abspath(p)
 
-# === TEXT DATA (FOR SIGNATURES) ===
-def create_text(name, body):
-    txt = bpy.data.texts.new(name)
-    txt.write(body)
-    return txt
-
-def remove_text(txt):
-    bpy.data.texts.remove(txt)
-
 # === ASSET BROWSER ===
 def refresh_assets():
-    """Force refresh all open Asset Browsers."""
-    for w in bpy.context.window_manager.windows:
-        for a in w.screen.areas:
-            if a.type == 'ASSETS':
-                with bpy.context.temp_override(window=w, area=a):
-                    bpy.ops.asset.library_refresh()
+    """Force refresh all open Asset Browsers after a short delay to ensure file locks are released."""
+    def _refresh():
+        for w in bpy.context.window_manager.windows:
+            for a in w.screen.areas:
+                if a.type == 'ASSETS':
+                    with bpy.context.temp_override(window=w, area=a):
+                        bpy.ops.asset.library_refresh()
+        return None  # Unregister timer
+    bpy.app.timers.register(_refresh, first_interval=0.1)
