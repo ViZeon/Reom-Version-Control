@@ -94,10 +94,23 @@ def get_cat_name(obj):
 def add_cat(lib_path, name):
     cid = str(uuid.uuid5(data.NAMESPACE, name))
     fpath = os.path.join(os.path.dirname(wrapper.abspath(lib_path)), data.CATALOG_FILE)
-    needs_header = not os.path.exists(fpath) or os.path.getsize(fpath) == 0
-    with open(fpath, 'a') as f:
-        if needs_header: f.write(data.CATALOG_HEADER)
-        f.write(f"{cid}:{name}:{name}\n")
+    
+    lines = []
+    if os.path.exists(fpath):
+        with open(fpath, 'r') as f:
+            lines = f.readlines()
+            
+    # Enforce header
+    if not lines or not lines[0].startswith('VERSION'):
+        lines.insert(0, data.CATALOG_HEADER)
+        
+    # Avoid duplicates
+    if not any(line.startswith(f"{cid}:") for line in lines):
+        lines.append(f"{cid}:{name}:{name}\n")
+        
+    with open(fpath, 'w') as f:
+        f.writelines(lines)
+        
     return cid
 
 # === LIBRARY VALIDATION & SYNC ===
@@ -164,6 +177,7 @@ def save_version(obj):
     write_obj(obj, lib, cat) # Marked save to library
     
     set_ver(obj, new_ver)
+    wrapper.refresh_assets()
     return data.INFO_SAVED.format(name, v_str)
 
 def highlight_version(obj, v_str):
@@ -173,6 +187,7 @@ def highlight_version(obj, v_str):
     
     validate_lib_file(lib, name)
     sync_file_to_lib(ver_path, lib, get_cat(obj))
+    wrapper.refresh_assets()
     return data.INFO_HIGHLIGHTED.format(name, v_str)
 
 def assign_cat(obj, cid):

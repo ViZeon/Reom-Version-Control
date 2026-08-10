@@ -48,3 +48,12 @@ def create_text(name, body):
 
 def remove_text(txt):
     bpy.data.texts.remove(txt)
+
+# === ASSET BROWSER ===
+def refresh_assets():
+    """Force refresh all open Asset Browsers."""
+    for w in bpy.context.window_manager.windows:
+        for a in w.screen.areas:
+            if a.type == 'ASSETS':
+                with bpy.context.temp_override(window=w, area=a):
+                    bpy.ops.asset.library_refresh()
