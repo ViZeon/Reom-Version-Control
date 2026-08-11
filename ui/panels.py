@@ -2,13 +2,11 @@ import bpy
 from .. import functions, wrapper, data
 
 def update_storage_mode(self, context):
-    """Callback to trigger migration when the preference changes."""
     root = self.lib_path
-    if root:
-        functions.migrate_all_versions(root, self.storage_mode)
+    if root: functions.migrate_all_versions(root, self.storage_mode)
 
 class ReomPrefs(bpy.types.AddonPreferences):
-    bl_idname = __package__.split('.')[0] # Ensure it binds to top-level package
+    bl_idname = __package__.split('.')[0]
     lib_path: bpy.props.StringProperty(name=data.TEXT_PREF_LIB, subtype=data.SUBTYPE_DIR)
     storage_mode: bpy.props.EnumProperty(
         items=data.ITEM_STORAGE_MODES, 
@@ -34,7 +32,6 @@ class REOM_VC_PT_main(bpy.types.Panel):
         if not obj: return
         
         lib = functions.get_lib(obj)
-        
         if not lib:
             l.label(text=data.TEXT_SETUP_PROMPT)
             l.label(text=data.TEXT_SETUP_HINT)
@@ -48,8 +45,13 @@ class REOM_VC_PT_main(bpy.types.Panel):
         
         l.label(text=f"{data.TEXT_MESH}{name}")
         if ver: l.label(text=f"{data.TEXT_VERSION}{functions.format_ver_ui(ver)}")
-        if cat: l.label(text=f"{data.TEXT_CAT}{cat}")
         
+        # FIX: Always show the operator button so it can be clicked again to change the category
+        if cat: 
+            l.operator(data.OP_SETUP_CAT, text=f"{data.TEXT_CAT}{cat}", icon='OUTLINER_COLLECTION')
+        else:
+            l.operator(data.OP_SETUP_CAT, text="Set Category", icon='OUTLINER_COLLECTION')
+            
         l.prop(wrapper.get_prefs(), data.PREF_STORAGE, text="")
         
         if linked:

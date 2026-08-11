@@ -1,5 +1,6 @@
 """Thin Blender API adapters. No logic."""
 import bpy
+import os
 from .. import data
 
 addon_keymaps = []
@@ -18,7 +19,6 @@ def get_prop(obj, key): return obj.get(key)
 def set_prop(obj, key, val): obj[key] = val
 def has_asset(obj): return obj.asset_data is not None
 
-# --- DRY HELPER: Gathers all dependencies for saving ---
 def get_blocks(objs):
     blocks = set()
     if not isinstance(objs, (list, set, tuple)): objs = [objs]
@@ -50,7 +50,6 @@ def set_catalog(obj, cid):
 def write_lib(path, blocks): bpy.data.libraries.write(path, blocks, fake_user=data.FAKE_USER)
 def load_lib(path): return bpy.data.libraries.load(path)
 
-# --- MEMORY LEAK FIX: Purge orphan meshes ---
 def remove_obj(obj): 
     mesh = obj.data
     bpy.data.objects.remove(obj, do_unlink=data.DO_UNLINK)
@@ -59,6 +58,16 @@ def remove_obj(obj):
 
 def save_main(path): bpy.ops.wm.save_as_mainfile(filepath=path, copy=data.COPY_MAIN)
 def abspath(p): return bpy.path.abspath(p)
+
+# --- NEW: Finds the root of the Asset Library ---
+def get_asset_library_root(lib_path):
+    if not lib_path: return None
+    lib_path = os.path.normpath(abspath(lib_path))
+    for asset_lib in bpy.context.preferences.filepaths.asset_libraries:
+        root = os.path.normpath(abspath(asset_lib.path))
+        if lib_path.startswith(root):
+            return root
+    return None
 
 def is_linked(obj):
     return bool(obj and (obj.library or (obj.data and obj.data.library)))

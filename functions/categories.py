@@ -1,13 +1,18 @@
 import os, uuid
 from .. import wrapper, data
 from . import state
-from .gateway import safe_write
+
+def _get_cat_file_path(lib_path):
+    """Finds the correct root directory for the catalog file."""
+    root = wrapper.get_asset_library_root(lib_path)
+    if not root:
+        root = os.path.dirname(wrapper.abspath(lib_path))
+    return os.path.join(root, data.CATALOG_FILE) if root else ""
 
 def read_cats(lib_path):
     if not lib_path: return {}
-    dir_path = os.path.dirname(wrapper.abspath(lib_path))
-    fpath = os.path.join(dir_path, data.CATALOG_FILE) if dir_path else ""
-    if not os.path.exists(fpath): return {}
+    fpath = _get_cat_file_path(lib_path)
+    if not fpath or not os.path.exists(fpath): return {}
     
     cats = {}
     with open(fpath, 'r') as f:
@@ -24,18 +29,30 @@ def get_cat_name(obj):
     return next((name for name, u in cats.items() if u == cid), None)
 
 def add_cat(lib_path, name):
-    cid = str(uuid.uuid5(data.NAMESPACE, name))
+    cid = str(uuid.uuid4())
     
     existing_cats = read_cats(lib_path)
     if name in existing_cats: return existing_cats[name]
     
-    dir_path = os.path.dirname(wrapper.abspath(lib_path)) or "."
-    fpath = os.path.join(dir_path, data.CATALOG_FILE)
+    fpath = _get_cat_file_path(lib_path)
+    if not fpath: return cid
     
-    lines = [data.CATALOG_HEADER]
-    if os.path.exists(fpath):
-        with open(fpath, 'r') as f: lines = f.readlines()
+    # FAILSAFE: If the file doesn't exist, create it safely.
+    if not os.path.exists(fpath):
+        with open(fpath, 'w') as f:
+            f.write(f"VERSION 1\n\n{cid}:{name}:{name}\n")
+        return cid
+        
+    # FAILSAFE: If it exists, strictly APPEND to it to protect user data.
+    needs_newline = False
+    with open(fpath, 'r') as f:
+        lines = f.readlines()
+        if lines and not lines[-1].endswith('\n'):
+            needs_newline = True
             
-    lines.append(f"{cid}:{name}:{name}\n")
-    safe_write(fpath, lines, data.MODE_REPLACE)
+    with open(fpath, 'a') as f:
+        if needs_newline:
+            f.write('\n')
+        f.write(f"{cid}:{name}:{name}\n")
+        
     return cid

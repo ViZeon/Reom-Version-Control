@@ -8,12 +8,15 @@ def _report(op, msg, type=data.REPORT_ERROR):
     return {data.OP_CANCEL} if type == data.REPORT_ERROR else {data.OP_FINISH}
 
 def _get_cats(self, context):
+    """Safely gets categories, providing a fallback to prevent Blender UI crashes."""
     obj = wrapper.get_active_obj()
-    if not obj: return []
+    if not obj: return [("NONE", "None", "")]
     lib = functions.get_lib(obj)
-    if not lib: return []
+    if not lib: return [("NONE", "None", "")]
+    
     cats = functions.read_cats(lib)
-    return [(cid, name, name) for name, cid in cats.items()]
+    items = [(cid, name, name) for name, cid in cats.items()]
+    return items if items else [("NONE", "None", "")]
 
 class REOM_VC_OT_startup(bpy.types.Operator):
     bl_idname = data.OP_STARTUP
@@ -58,7 +61,10 @@ class REOM_VC_OT_setup_cat(bpy.types.Operator):
     @classmethod
     def poll(cls, ctx): return wrapper.get_active_obj() is not None
     
-    def invoke(self, ctx, ev): return ctx.window_manager.invoke_props_dialog(self, width=data.WIDTH_SMALL)
+    def invoke(self, ctx, ev): 
+        if functions.is_linked(wrapper.get_active_obj()):
+            return _report(self, "Object is linked. Enter Edit mode first.")
+        return ctx.window_manager.invoke_props_dialog(self, width=data.WIDTH_SMALL)
         
     def draw(self, ctx):
         self.layout.label(text=data.TEXT_SELECT_CAT)
@@ -67,8 +73,10 @@ class REOM_VC_OT_setup_cat(bpy.types.Operator):
         
     def execute(self, ctx):
         obj = wrapper.get_active_obj()
+        
+        # Handle the fallback "NONE" item safely
         if self.new_cat: cid = functions.add_cat(functions.get_lib(obj), self.new_cat)
-        elif self.existing: cid = self.existing
+        elif self.existing and self.existing != "NONE": cid = self.existing
         else: return _report(self, data.ERR_NO_CAT)
         
         functions.assign_cat(obj, cid)
