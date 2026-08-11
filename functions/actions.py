@@ -12,9 +12,7 @@ log = get_logger()
 def setup_lib(obj, name, filepath):
     path = prepare_path(wrapper.abspath(filepath))
     if not os.path.exists(path):
-        blocks = {obj, obj.data} if obj.data else {obj}
-        blocks.update(wrapper.get_mats(obj))
-        wrapper.write_lib(path, blocks)
+        wrapper.write_lib(path, wrapper.get_blocks(obj))
     
     state.set_name(obj, name)
     state.set_uuid(obj, str(uuid.uuid4()))
@@ -30,8 +28,7 @@ def save_version(obj, action=data.ACT_SAVE, root=None):
     cur_ver = state.get_ver(obj)
     mode = state.get_storage_mode()
     
-    if not cur_ver:
-        new_ver = data.INITIAL_VERSION
+    if not cur_ver: new_ver = data.INITIAL_VERSION
     else:
         match action:
             case data.ACT_SAVE: new_ver = bump_ver(cur_ver)
@@ -42,10 +39,8 @@ def save_version(obj, action=data.ACT_SAVE, root=None):
     v_str = str_ver(new_ver)
     ver_path = get_version_path(name, new_ver, root, mode)
     
-    if mode == data.MODE_VER:
-        write_obj(obj, ver_path, name, mode=data.MODE_SAFE)
-    else:
-        pack_version(obj, name, new_ver, ver_path, mode)
+    if mode == data.MODE_VER: write_obj(obj, ver_path, name, mode=data.MODE_SAFE)
+    else: pack_version(obj, name, new_ver, ver_path, mode)
     
     validate_lib_file(lib, name)
     write_obj(obj, lib, name, cat, data.MODE_REPLACE)
@@ -64,9 +59,7 @@ def set_main_version(obj, v_str, root=None):
     ver_path = get_version_path(name, v_tuple, root, mode)
     
     validate_lib_file(lib, name)
-    
-    is_packed = (mode != data.MODE_VER)
-    sync_to_lib(ver_path, lib, name, v_str, state.get_cat(obj), is_packed)
+    sync_to_lib(ver_path, lib, name, v_str, state.get_cat(obj), mode != data.MODE_VER)
         
     wrapper.refresh_assets()
     log.info(f"Set main version for {name} to {v_str}")

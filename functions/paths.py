@@ -44,8 +44,8 @@ def scan_versions(name, path):
     if mode == data.MODE_VER:
         pref, suff = f"{name}{data.VER_SEP}", data.BLEND_EXT
         for f in os.listdir(vdir):
-            if f.startswith(data.BACKUP_PREFIX): continue
-            if f.startswith(pref) and f.endswith(suff) and not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT):
+            if f.startswith(data.BACKUP_PREFIX) or f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT): continue
+            if f.startswith(pref) and f.endswith(suff):
                 try: vers.append(tuple(map(int, f[len(pref):-len(suff)].split(data.VER_SEP))))
                 except: pass
     else:
@@ -67,17 +67,14 @@ def scan_versions(name, path):
 
 def get_default_lib_path(obj):
     root = wrapper.get_prefs().lib_path
-    if not root: return ""
-    return os.path.join(os.path.expanduser(root), f"{state.get_name(obj)}{data.BLEND_EXT}")
+    return os.path.join(os.path.expanduser(root), f"{state.get_name(obj)}{data.BLEND_EXT}") if root else ""
 
 def prepare_path(path):
     if not path.endswith(data.BLEND_EXT): path += data.BLEND_EXT
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
 
-# === MIGRATION ===
 def migrate_all_versions(root, new_mode):
-    """Unpacks everything to individual files, then repacks according to new_mode."""
     if not root: return
     vdir = os.path.join(root, data.V_DIR)
     if not os.path.exists(vdir): return
@@ -87,98 +84,64 @@ def migrate_all_versions(root, new_mode):
         asset_dir = os.path.join(vdir, asset_name)
         if not os.path.isdir(asset_dir): continue
         
-        # 0. Create a full snapshot backup of ALL active files before touching anything
         active_files = [f for f in os.listdir(asset_dir) if not f.startswith(data.BACKUP_PREFIX) and f.endswith(data.BLEND_EXT)]
         if active_files:
             backup_dir = os.path.join(asset_dir, f"{data.BACKUP_PREFIX}migration")
             os.makedirs(backup_dir, exist_ok=True)
-            for f in active_files:
-                shutil.copy2(os.path.join(asset_dir, f), os.path.join(backup_dir, f))
-            log.info(f"Created migration snapshot in {backup_dir}")
+            for f in active_files: shutil.copy2(os.path.join(asset_dir, f), os.path.join(backup_dir, f))
         
-        # 1. Unpack any existing packed files to individual files
         for f in list(os.listdir(asset_dir)):
-            if f.startswith(data.BACKUP_PREFIX): continue
-            if not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT): continue
+            if f.startswith(data.BACKUP_PREFIX) or not f.endswith(data.PACKED_SUFFIX + data.BLEND_EXT): continue
             fpath = os.path.join(asset_dir, f)
             
-            existing = set(wrapper.get_all_objs().keys())
+            existing = set(wrapper.get_all_objs())
             with wrapper.load_lib(fpath) as (df, dt):
-                # Load ALL objects from the packed file
                 dt.objects = [n for n in df.objects if n.startswith(asset_name + data.VER_SEP)]
                 
-            for ob in list(wrapper.get_all_objs()):
-                if ob.name not in existing:
-                    wrapper.make_local(ob)
-                    ind_path = os.path.join(asset_dir, f"{ob.name}{data.BLEND_EXT}")
-                    blocks = {ob, ob.data} if ob.data else {ob}
-                    blocks.update(wrapper.get_mats(ob))
-                    safe_write(ind_path, blocks, data.MODE_REPLACE)
-                    wrapper.remove_obj(ob)
+            loaded_objs = [ob for ob in wrapper.get_all_objs() if ob not in existing]
+            for ob in loaded_objs:
+                wrapper.make_local(ob)
+                ind_path = os.path.join(asset_dir, f"{ob.name}{data.BLEND_EXT}")
+                safe_write(ind_path, wrapper.get_blocks(ob), data.MODE_REPLACE)
+                wrapper.remove_obj(ob)
                     
             os.remove(fpath)
             
         if new_mode == data.MODE_VER: continue
         
-        # 2. Group individual files and repack them
         groups = {}
         for f in os.listdir(asset_dir):
-            if f.startswith(data.BACKUP_PREFIX): continue
-            if not f.endswith(data.BLEND_EXT): continue
+            if f.startswith(data.BACKUP_PREFIX) or not f.endswith(data.BLEND_EXT): continue
             v_str = f[len(asset_name)+1:-len(data.BLEND_EXT)]
-            try:
-                v_tuple = tuple(map(int, v_str.split(data.VER_SEP)))
+            try: v_tuple = tuple(map(int, v_str.split(data.VER_SEP)))
             except: continue
             
-            if new_mode == data.MODE_SUB:
-                group_key = v_tuple[:2]
-            elif new_mode == data.MODE_RELEASE:
-                group_key = (v_tuple[0],)
-            else: continue
+            group_key = v_tuple[:2] if new_mode == data.MODE_SUB else (v_tuple[0],) if new_mode == data.MODE_RELEASE else None
+            if not group_key: continue
                 
-            if group_key not in groups: groups[group_key] = []
-            groups[group_key].append((os.path.join(asset_dir, f), v_tuple))
+            groups.setdefault(group_key, []).append((os.path.join(asset_dir, f), v_tuple))
             
         for group_key, files in groups.items():
-            if new_mode == data.MODE_SUB:
-                packed_name = f"{asset_name}{data.VER_SEP}{data.VER_SEP.join(map(str, group_key))}{data.PACKED_SUFFIX}{data.BLEND_EXT}"
-            elif new_mode == data.MODE_RELEASE:
-                packed_name = f"{asset_name}{data.VER_SEP}{group_key[0]}{data.PACKED_SUFFIX}{data.BLEND_EXT}"
-                
+            packed_name = f"{asset_name}{data.VER_SEP}{data.VER_SEP.join(map(str, group_key))}{data.PACKED_SUFFIX}{data.BLEND_EXT}" if new_mode == data.MODE_SUB else f"{asset_name}{data.VER_SEP}{group_key[0]}{data.PACKED_SUFFIX}{data.BLEND_EXT}"
             packed_path = os.path.join(asset_dir, packed_name)
             
+            existing = set(wrapper.get_all_objs())
             loaded_objs = []
-            existing = set(wrapper.get_all_objs().keys())
             
             for fpath, v_tuple in files:
-                with wrapper.load_lib(fpath) as (df, dt):
-                    # Load ALL objects from the individual file
-                    dt.objects = df.objects
-                    
-                for ob in list(wrapper.get_all_objs()):
-                    if ob.name not in existing:
-                        wrapper.make_local(ob)
-                        v_str = data.VER_SEP.join(map(str, v_tuple))
-                        ob.name = f"{asset_name}{data.VER_SEP}{v_str}"
-                        if ob.data: ob.data.name = ob.name
-                        loaded_objs.append(ob)
-                        existing.add(ob.name)
+                with wrapper.load_lib(fpath) as (df, dt): dt.objects = df.objects
+                new_objs = [ob for ob in wrapper.get_all_objs() if ob not in existing]
+                for ob in new_objs:
+                    wrapper.make_local(ob)
+                    ob.name = f"{asset_name}{data.VER_SEP}{data.VER_SEP.join(map(str, v_tuple))}"
+                    if ob.data: ob.data.name = ob.name
+                    loaded_objs.append(ob)
+                    existing.add(ob)
                         
-            if not loaded_objs:
-                log.warning(f"No objects loaded for {packed_path}. Skipping.")
-                continue
+            if not loaded_objs: continue
                         
-            blocks = set()
-            for ob in loaded_objs:
-                blocks.add(ob)
-                if ob.data: blocks.add(ob.data)
-                blocks.update(wrapper.get_mats(ob))
-                
-            safe_write(packed_path, blocks, data.MODE_REPLACE)
-            log.info(f"Packed {len(loaded_objs)} versions into {packed_path}")
+            safe_write(packed_path, wrapper.get_blocks(loaded_objs), data.MODE_REPLACE)
             
             for ob in loaded_objs: wrapper.remove_obj(ob)
             for fpath, _ in files:
                 if os.path.exists(packed_path): os.remove(fpath)
-                
-    log.info("Migration complete.")

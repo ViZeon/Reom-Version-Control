@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Reom Version Control",
     "version": (1, 0, 0),
-    "blender": (5, 2, 0),
+    "blender": (3, 2, 0),
     "category": "Generic",
 }
 
